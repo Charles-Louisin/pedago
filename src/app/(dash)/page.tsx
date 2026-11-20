@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight } from "lucide-react";
 import { api } from "@/lib/api";
-import { PageHeader, Skeleton, Stat } from "@/components/ui/kit";
-import { LiquidOrb } from "@/components/ui/LiquidOrb";
+import { PageHeader, Skeleton, Stat, StatusIcon } from "@/components/ui/kit";
 
 type Stats = {
   resources: Record<string, number>;
@@ -30,7 +29,7 @@ export default function Overview() {
 
       <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
         <section className="card relative flex flex-col items-start gap-6 overflow-hidden p-6 sm:flex-row sm:items-center sm:gap-7 sm:p-7 rise-in">
-          <LiquidOrb size={132} state={!data?.aiConfigured ? "error" : running ? "thinking" : toReview ? "searching" : "idle"} />
+          <StatusIcon size={64} state={!data?.aiConfigured ? "error" : running ? "busy" : toReview ? "warn" : "idle"} />
           <div className="min-w-0">
             <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted">Usine IA</p>
             <h2 className="mt-1 text-[24px] font-semibold leading-tight">
@@ -57,7 +56,7 @@ export default function Overview() {
           </div>
           <div className="mt-6 flex h-28 items-end gap-[3px]">
             {(data?.costByDay.length ? data.costByDay : Array.from({ length: 30 }, (_, i) => ({ day: String(i), costUsd: 0, calls: 0 }))).map((c) => (
-              <div key={c.day} title={`${c.day} · ${c.costUsd} $ · ${c.calls} appels`} className="flex-1 rounded-t-[4px] bg-ink/80 transition-all hover:bg-green" style={{ height: `${Math.max(3, (c.costUsd / maxCost) * 100)}%` }} />
+              <div key={c.day} title={`${c.day} · ${c.costUsd} $ · ${c.calls} appels`} className="flex-1 rounded-t-[4px] bg-accent/70 transition-all hover:bg-green" style={{ height: `${Math.max(3, (c.costUsd / maxCost) * 100)}%` }} />
             ))}
           </div>
         </section>
@@ -69,7 +68,7 @@ export default function Overview() {
         ) : (
           <>
             <Stat label="Ressources publiées" value={data.resources.PUBLISHED ?? 0} hint="visibles par les enseignants" accent="var(--green)" />
-            <Stat label="À relire" value={toReview} hint="validation humaine requise" accent={toReview ? "#8a6400" : undefined} />
+            <Stat label="À relire" value={toReview} hint="validation humaine requise" accent={toReview ? "var(--sun)" : undefined} />
             <Stat label="Leçons du référentiel" value={(data.nodes.validated ?? 0) + (data.nodes.extracted ?? 0)} hint={`${data.nodes.extracted ?? 0} à valider`} />
             <Stat label="Enseignants" value={data.teachers} hint={`${data.sources} source(s) officielle(s)`} />
           </>

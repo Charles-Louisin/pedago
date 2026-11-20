@@ -19,7 +19,7 @@ export default function CalendarPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-[20px] font-semibold">{c.schoolYear}</h2>
             {!c.verified && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fff6db] px-3 py-1 text-[12px] font-semibold text-[#8a6400]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--sun-soft)] px-3 py-1 text-[12px] font-semibold text-sun">
                 <AlertTriangle size={13} /> À vérifier contre l’arrêté officiel
               </span>
             )}

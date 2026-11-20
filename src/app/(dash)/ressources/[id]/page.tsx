@@ -134,7 +134,7 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
                   {(list as Exercise[]).map((e, i) => (
                     <li key={i}>
                       <p className="text-ink">{i + 1}. {e.prompt} {e.points !== undefined && <span className="text-muted">({e.points} pts)</span>}</p>
-                      <p className="mt-1 rounded-xl bg-[#e6f6ec] px-3 py-2 text-[13.5px] text-[#0b5c3a]"><b>Corrigé :</b> {e.answer}{e.explanation ? ` — ${e.explanation}` : ""}</p>
+                      <p className="mt-1 rounded-xl bg-[var(--accent-soft)] px-3 py-2 text-[13.5px] text-accent"><b>Corrigé :</b> {e.answer}{e.explanation ? ` — ${e.explanation}` : ""}</p>
                       {e.illustration && <p className="mt-1 text-[12.5px] italic text-muted">Illustration : {e.illustration}</p>}
                     </li>
                   ))}
@@ -186,7 +186,7 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
               <ul className="mt-3 space-y-2">
                 {issues.map((i, k) => (
                   <li key={k} className="flex gap-2 text-[13px]">
-                    <AlertTriangle size={14} className={`mt-0.5 shrink-0 ${i.severity === "error" ? "text-red" : "text-[#c28a00]"}`} />
+                    <AlertTriangle size={14} className={`mt-0.5 shrink-0 ${i.severity === "error" ? "text-red" : "text-sun"}`} />
                     <span><b className="font-semibold">{i.area}</b> — {i.message}</span>
                   </li>
                 ))}

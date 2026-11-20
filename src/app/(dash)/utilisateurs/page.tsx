@@ -24,7 +24,7 @@ export default function UsersPage() {
         <ul className="card divide-y divide-[var(--line)]">
           {data?.items.map((u) => (
             <li key={u._id} className="flex flex-wrap items-center gap-4 px-5 py-3.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/[.06] text-[13px] font-semibold">{u.fullName.slice(0, 1)}</span>
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink/[.06] text-[13px] font-semibold">{u.fullName.slice(0, 1)}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-[14px] font-medium">{u.fullName}</p>
                 <p className="text-[12.5px] text-muted">{u.email ?? u.phone}{u.lastLoginAt ? ` · vu le ${new Date(u.lastLoginAt).toLocaleDateString("fr-FR")}` : ""}</p>

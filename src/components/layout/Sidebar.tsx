@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { BookOpenCheck, CalendarDays, FileSearch, GitBranch, LayoutGrid, LogOut, Menu, Sparkles, Users, X } from "lucide-react";
 import { clsx } from "clsx";
 import { PedagoWordmark } from "@/components/brand/PedagoMark";
+import { ThemeToggle } from "./ThemeToggle";
 
 const SECTIONS = [
   { title: "Vue d'ensemble", items: [{ href: "/", label: "Tableau de bord", icon: LayoutGrid }] },
@@ -50,7 +51,7 @@ function NavContent({ user, onNavigate }: { user: User; onNavigate?: () => void 
                       aria-current={active ? "page" : undefined}
                       className={clsx(
                         "flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13.5px] transition-colors",
-                        active ? "bg-white font-medium text-ink shadow-[0_0_0_1px_var(--line)]" : "text-ink-2 hover:bg-black/[.035]"
+                        active ? "bg-surface font-medium text-ink shadow-[0_0_0_1px_var(--line)]" : "text-ink-2 hover:bg-ink/[.035]"
                       )}
                     >
                       <it.icon size={16} className={active ? "text-green" : "text-muted"} aria-hidden />
@@ -63,8 +64,9 @@ function NavContent({ user, onNavigate }: { user: User; onNavigate?: () => void 
           </div>
         ))}
       </nav>
-      <div className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-[0_0_0_1px_var(--line)]">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-[13px] font-semibold text-white" aria-hidden>
+      <ThemeToggle />
+      <div className="mt-2 flex items-center gap-3 rounded-lg bg-surface p-3 border border-[var(--line)]">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-[13px] font-semibold text-[var(--on-accent)]" aria-hidden>
           {user.fullName.slice(0, 1)}
         </span>
         <div className="min-w-0 flex-1">
@@ -74,7 +76,7 @@ function NavContent({ user, onNavigate }: { user: User; onNavigate?: () => void 
         <button
           aria-label="Se déconnecter"
           title="Se déconnecter"
-          className="rounded-lg p-1.5 text-muted hover:bg-black/5 hover:text-ink"
+          className="rounded-lg p-1.5 text-muted hover:bg-ink/5 hover:text-ink"
           onClick={async () => {
             await fetch("/api/session", { method: "DELETE" });
             router.replace("/connexion");
@@ -118,7 +120,7 @@ export function Sidebar({ user }: { user: User }) {
         </button>
       </header>
       <div className={clsx("fixed inset-0 z-40 lg:hidden", open ? "pointer-events-auto" : "pointer-events-none")} aria-hidden={!open}>
-        <div className={clsx("absolute inset-0 bg-black/25 transition-opacity duration-300", open ? "opacity-100" : "opacity-0")} onClick={() => setOpen(false)} />
+        <div className={clsx("absolute inset-0 bg-ink/25 transition-opacity duration-300", open ? "opacity-100" : "opacity-0")} onClick={() => setOpen(false)} />
         <div
           role="dialog"
           aria-modal="true"
@@ -130,7 +132,7 @@ export function Sidebar({ user }: { user: User }) {
         >
           <div className="flex items-center justify-between px-2">
             <PedagoWordmark />
-            <button aria-label="Fermer le menu" onClick={() => setOpen(false)} className="rounded-lg p-2 text-muted hover:bg-black/5">
+            <button aria-label="Fermer le menu" onClick={() => setOpen(false)} className="rounded-lg p-2 text-muted hover:bg-ink/5">
               <X size={18} />
             </button>
           </div>

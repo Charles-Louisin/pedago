@@ -55,10 +55,10 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
         style={{ transform: `rotate(${rotated ? -24 : 0}deg) scale(${merged ? 0.6 : 1})`, opacity: phase >= 2 && !merged ? 1 : 0, transition: "opacity .6s, transform .7s cubic-bezier(.22,1,.36,1)" }}
       >
         {[-1, 1].map((s) => (
-          <div key={`h${s}`} className="absolute left-0 right-0 h-px bg-black/10 transition-all duration-700" style={{ top: `calc(50% + ${(s * (split ? 46 : 17))}px)`, transform: `scaleX(${phase >= 2 ? 1 : 0})` }} />
+          <div key={`h${s}`} className="absolute left-0 right-0 h-px bg-ink/10 transition-all duration-700" style={{ top: `calc(50% + ${(s * (split ? 46 : 17))}px)`, transform: `scaleX(${phase >= 2 ? 1 : 0})` }} />
         ))}
         {[-1, 1].map((s) => (
-          <div key={`v${s}`} className="absolute bottom-0 top-0 w-px bg-black/10 transition-all duration-700" style={{ left: `calc(50% + ${(s * (split ? 46 : 17))}px)`, transform: `scaleY(${phase >= 2 ? 1 : 0})` }} />
+          <div key={`v${s}`} className="absolute bottom-0 top-0 w-px bg-ink/10 transition-all duration-700" style={{ left: `calc(50% + ${(s * (split ? 46 : 17))}px)`, transform: `scaleY(${phase >= 2 ? 1 : 0})` }} />
         ))}
       </div>
 

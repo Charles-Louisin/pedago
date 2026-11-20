@@ -1,29 +1,86 @@
 @import "tailwindcss";
 
 /*
- * PEDAGO — système visuel
- * Toile gris très clair, encre presque noire, lignes de guidage fines, contrôles « bulle de savon »
- * (verre brillant, reflets, ombres internes). Vert camerounais comme accent principal.
+ * PEDAGO — administration
+ * Sobre et dense : gris neutre, surfaces blanches, accent vert du logo. Clair, sombre ou selon le système.
+ * Les couleurs sont des variables : le thème bascule sans recharger (attribut data-theme sur <html>).
  */
 :root {
-  --canvas: #f4f4f2;
+  --canvas: #efefef;
   --surface: #ffffff;
-  --surface-2: #fafaf9;
-  --ink: #111214;
-  --ink-2: #3a3d42;
-  --muted: #6b6f76;
-  --faint: #a3a7ad;
-  --line: rgba(17, 18, 20, 0.08);
-  --line-strong: rgba(17, 18, 20, 0.14);
-  --green: #0b8a55;
-  --green-bubble: #34c759;
-  --sun: #f2b705;
-  --red: #d93a2b;
-  --blue: #2f6fed;
-  --magenta: #c21cb4;
-  --radius: 18px;
+  --surface-2: #f7f7f7;
+  --header: #e4e4e4;
+  --ink: #1a1a1a;
+  --ink-2: #3d3d3d;
+  --muted: #6e6e6e;
+  --faint: #a0a0a0;
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.14);
+  --accent: #0b8a55;
+  --accent-strong: #086b42;
+  --accent-soft: #e3f3ea;
+  --on-accent: #ffffff;
+  --green: var(--accent);
+  --sun: #a86f00;
+  --sun-soft: #fff4d6;
+  --red: #c8372a;
+  --red-soft: #fbe7e5;
+  --blue: #2557c7;
+  --blue-soft: #e7f0ff;
+  --radius: 8px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  color-scheme: light;
+}
+
+
+:root[data-theme="dark"] {
+  --canvas: #121212;
+  --surface: #1e1e1e;
+  --surface-2: #242424;
+  --header: #1a1a1a;
+  --ink: #f2f2f2;
+  --ink-2: #d0d0d0;
+  --muted: #9e9e9e;
+  --faint: #6b6b6b;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --accent: #3dd27a;
+  --accent-strong: #5be08f;
+  --accent-soft: rgba(61, 210, 122, 0.14);
+  --on-accent: #0b1a12;
+  --sun: #f2b705;
+  --sun-soft: rgba(242, 183, 5, 0.14);
+  --red: #ff6b5e;
+  --red-soft: rgba(255, 107, 94, 0.14);
+  --blue: #6e9bff;
+  --blue-soft: rgba(110, 155, 255, 0.14);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #121212;
+    --surface: #1e1e1e;
+    --surface-2: #242424;
+    --header: #1a1a1a;
+    --ink: #f2f2f2;
+    --ink-2: #d0d0d0;
+    --muted: #9e9e9e;
+    --faint: #6b6b6b;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.16);
+    --accent: #3dd27a;
+    --accent-strong: #5be08f;
+    --accent-soft: rgba(61, 210, 122, 0.14);
+    --on-accent: #0b1a12;
+    --sun: #f2b705;
+    --sun-soft: rgba(242, 183, 5, 0.14);
+    --red: #ff6b5e;
+    --red-soft: rgba(255, 107, 94, 0.14);
+    --blue: #6e9bff;
+    --blue-soft: rgba(110, 155, 255, 0.14);
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
@@ -35,187 +92,115 @@
   --color-muted: var(--muted);
   --color-faint: var(--faint);
   --color-line: var(--line);
-  --color-green: var(--green);
+  --color-green: var(--accent);
+  --color-accent: var(--accent);
   --color-sun: var(--sun);
   --color-red: var(--red);
   --color-blue: var(--blue);
-  --font-sans: var(--font-inter);
+  /* Police du système : lisible, rapide (aucun téléchargement), familière. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 html,
 body {
   background: var(--canvas);
   color: var(--ink);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 h1,
 h2,
 h3 {
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
 }
 
 ::selection {
-  background: rgba(11, 138, 85, 0.18);
+  background: var(--accent-soft);
 }
 
-/* ───────── Bulle de savon (recréée depuis Bubble UI) ───────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ───────── Boutons ───────── */
 
 .bubble {
-  position: relative;
-  isolation: isolate;
-  border-radius: 999px;
-  color: var(--ink);
-  background:
-    radial-gradient(120% 90% at 30% 15%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 55%),
-    linear-gradient(180deg, #f3f3f3 0%, #e4e4e4 100%);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.9),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
-    0 1px 2px rgba(0, 0, 0, 0.06),
-    0 6px 14px -6px rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius);
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
   transition:
-    transform 0.35s var(--ease-spring),
-    box-shadow 0.25s var(--ease-out),
-    filter 0.25s;
-}
-.bubble::after {
-  /* reflet spéculaire en arc, comme une pellicule de savon */
-  content: "";
-  position: absolute;
-  inset: 2px 12% auto 12%;
-  height: 42%;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
-  opacity: 0.7;
-  pointer-events: none;
-  z-index: -1;
+    background-color 0.15s,
+    border-color 0.15s,
+    opacity 0.15s;
 }
 .bubble:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.95),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.6),
-    0 2px 4px rgba(0, 0, 0, 0.06),
-    0 10px 22px -8px rgba(0, 0, 0, 0.22);
+  background: var(--surface-2);
 }
 .bubble:active {
-  transform: scale(0.96);
-  transition-duration: 0.12s;
+  opacity: 0.8;
 }
 .bubble:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   pointer-events: none;
 }
-.bubble-green::after,
-.bubble-ink::after,
-.bubble-red::after {
-  opacity: 0.28;
-  height: 38%;
-}
-.bubble-green {
-  color: #fff;
-  background:
-    radial-gradient(120% 90% at 30% 10%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 50%),
-    linear-gradient(180deg, #4fd774 0%, #23b14d 100%);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.6),
-    inset 0 -3px 6px rgba(0, 70, 20, 0.25),
-    0 1px 2px rgba(0, 0, 0, 0.08),
-    0 8px 18px -8px rgba(35, 177, 77, 0.6);
-}
+.bubble-green,
 .bubble-ink {
-  color: #fff;
-  background:
-    radial-gradient(120% 90% at 30% 10%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 50%),
-    linear-gradient(180deg, #2a2c30 0%, #0f1012 100%);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.4),
-    0 8px 18px -8px rgba(0, 0, 0, 0.5);
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.bubble-green:hover,
+.bubble-ink:hover {
+  background: var(--accent-strong);
 }
 .bubble-red {
   color: #fff;
-  background:
-    radial-gradient(120% 90% at 30% 10%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 50%),
-    linear-gradient(180deg, #ef5a4a 0%, #c92d1e 100%);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.5),
-    inset 0 -3px 6px rgba(90, 10, 0, 0.25),
-    0 8px 18px -8px rgba(217, 58, 43, 0.6);
+  background: var(--red);
+  border-color: var(--red);
+}
+.bubble-red:hover {
+  background: var(--red);
+  opacity: 0.9;
 }
 
-/* Champ « bulle » (recherche) */
+/* Champ de saisie */
 .bubble-field {
-  border-radius: 999px;
-  background: linear-gradient(180deg, #efefef 0%, #f7f7f7 100%);
-  box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.07),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.9),
-    0 0 0 1px rgba(255, 255, 255, 0.7);
-  transition: box-shadow 0.2s;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  transition: border-color 0.15s;
 }
 .bubble-field:focus-within {
-  box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.07),
-    0 0 0 1px rgba(255, 255, 255, 0.7),
-    0 0 0 4px rgba(52, 199, 89, 0.18);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
-/* Bouton d'interrupteur en verre (le bouton laisse voir la piste à travers lui) */
 .glass-knob {
   border-radius: 999px;
-  background: radial-gradient(120% 100% at 50% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.35) 60%, rgba(255, 255, 255, 0.55));
-  backdrop-filter: blur(2px) saturate(1.6);
-  box-shadow:
-    inset 0 0 0 1.5px rgba(255, 255, 255, 0.95),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.18);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Cartes et surfaces */
+/* Surfaces : pas d'ombres décoratives, une séparation nette. */
 .card {
   background: var(--surface);
   border-radius: var(--radius);
-  box-shadow:
-    0 0 0 1px var(--line),
-    0 1px 2px rgba(0, 0, 0, 0.03);
-}
-
-.hairline-x {
-  background-image: linear-gradient(to right, var(--line-strong), var(--line-strong));
-  background-size: 100% 1px;
-  background-repeat: no-repeat;
-}
-
-/* Grain léger (finition des surfaces en verre) */
-.grain::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.14;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  border: 1px solid var(--line);
 }
 
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
-    filter: blur(6px);
   }
   to {
     opacity: 1;
-    transform: none;
-    filter: none;
   }
 }
 .rise-in {
-  animation: rise-in 0.7s var(--ease-out) both;
+  animation: rise-in 0.2s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

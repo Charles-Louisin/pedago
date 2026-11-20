@@ -82,7 +82,7 @@ export function BubbleSwitch({ checked, onChange, label }: { checked: boolean; o
       onClick={() => onChange(!checked)}
       className="group relative h-8 w-[58px] shrink-0 rounded-full transition-colors duration-300"
       style={{
-        background: checked ? "linear-gradient(180deg,#4fd774,#23b14d)" : "linear-gradient(180deg,#e2e2e2,#ececec)",
+        background: checked ? "var(--accent)" : "var(--line-strong)",
         boxShadow: "inset 0 2px 4px rgba(0,0,0,.12), inset 0 -1px 1px rgba(255,255,255,.6)",
       }}
     >
@@ -123,8 +123,8 @@ export function BubbleSlider({ value, onChange, min = 0, max = 100, step = 1, la
         if (e.key === "ArrowLeft") onChange(Math.max(min, value - step));
       }}
     >
-      <div className="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-[#e3e3e3]" />
-      <div className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#2f6fed,#4c86ff)" }} />
+      <div className="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-[var(--line-strong)]" />
+      <div className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full" style={{ width: `${pct}%`, background: "var(--accent)" }} />
       <div className="glass-knob absolute top-1/2 h-8 w-12 -translate-x-1/2 -translate-y-1/2 transition-transform active:scale-110" style={{ left: `${pct}%` }} />
     </div>
   );

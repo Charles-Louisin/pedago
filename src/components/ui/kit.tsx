@@ -17,27 +17,27 @@ export function PageHeader({ eyebrow, title, description, actions }: { eyebrow?:
 }
 
 const PILL: Record<string, string> = {
-  PUBLISHED: "bg-[#e6f6ec] text-[#0b7a4b]",
-  APPROVED: "bg-[#e7f0ff] text-[#2557c7]",
-  HUMAN_REVIEW: "bg-[#fff6db] text-[#8a6400]",
-  AI_CHECKED: "bg-[#f1ecff] text-[#5b3cc4]",
-  DRAFT: "bg-black/5 text-ink-2",
-  REJECTED: "bg-[#fde9e7] text-[#b42318]",
-  ARCHIVED: "bg-black/5 text-muted",
-  done: "bg-[#e6f6ec] text-[#0b7a4b]",
-  waiting_review: "bg-[#fff6db] text-[#8a6400]",
-  running: "bg-[#e7f0ff] text-[#2557c7]",
-  queued: "bg-black/5 text-ink-2",
-  failed: "bg-[#fde9e7] text-[#b42318]",
-  budget_exceeded: "bg-[#fde9e7] text-[#b42318]",
-  cancelled: "bg-black/5 text-muted",
-  validated: "bg-[#e6f6ec] text-[#0b7a4b]",
-  extracted: "bg-[#fff6db] text-[#8a6400]",
-  retired: "bg-black/5 text-muted",
+  PUBLISHED: "bg-[var(--accent-soft)] text-accent",
+  APPROVED: "bg-[var(--blue-soft)] text-blue",
+  HUMAN_REVIEW: "bg-[var(--sun-soft)] text-sun",
+  AI_CHECKED: "bg-[var(--blue-soft)] text-blue",
+  DRAFT: "bg-ink/5 text-ink-2",
+  REJECTED: "bg-[var(--red-soft)] text-red",
+  ARCHIVED: "bg-ink/5 text-muted",
+  done: "bg-[var(--accent-soft)] text-accent",
+  waiting_review: "bg-[var(--sun-soft)] text-sun",
+  running: "bg-[var(--blue-soft)] text-blue",
+  queued: "bg-ink/5 text-ink-2",
+  failed: "bg-[var(--red-soft)] text-red",
+  budget_exceeded: "bg-[var(--red-soft)] text-red",
+  cancelled: "bg-ink/5 text-muted",
+  validated: "bg-[var(--accent-soft)] text-accent",
+  extracted: "bg-[var(--sun-soft)] text-sun",
+  retired: "bg-ink/5 text-muted",
 };
 
 export function Pill({ status, children }: { status: string; children: ReactNode }) {
-  return <span className={clsx("inline-flex items-center rounded-full px-2.5 py-1 text-[11.5px] font-semibold", PILL[status] ?? "bg-black/5 text-ink-2")}>{children}</span>;
+  return <span className={clsx("inline-flex items-center rounded-full px-2.5 py-1 text-[11.5px] font-semibold", PILL[status] ?? "bg-ink/5 text-ink-2")}>{children}</span>;
 }
 
 /** Sélecteur segmenté façon pilule, avec indicateur glissant. */
@@ -95,5 +95,22 @@ export function Empty({ title, children }: { title: string; children?: ReactNode
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={clsx("animate-pulse rounded-xl bg-black/[.06]", className)} />;
+  return <div className={clsx("animate-pulse rounded-xl bg-ink/[.06]", className)} />;
+}
+
+/** Indicateur d'état compact (remplace les décorations) : pastille colorée + icône. */
+export function StatusIcon({ state, size = 56 }: { state: "idle" | "busy" | "warn" | "error"; size?: number }) {
+  const map = {
+    idle: { bg: "bg-[var(--accent-soft)]", fg: "text-accent", d: "M5 12l4 4L19 6" },
+    busy: { bg: "bg-[var(--blue-soft)]", fg: "text-blue", d: "M12 3a9 9 0 1 0 9 9" },
+    warn: { bg: "bg-[var(--sun-soft)]", fg: "text-sun", d: "M12 8v5m0 3h.01" },
+    error: { bg: "bg-[var(--red-soft)]", fg: "text-red", d: "M12 8v5m0 3h.01" },
+  }[state];
+  return (
+    <span className={clsx("inline-flex shrink-0 items-center justify-center rounded-full", map.bg, map.fg)} style={{ width: size, height: size }} aria-hidden>
+      <svg width={size * 0.45} height={size * 0.45} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={state === "busy" ? "animate-spin" : undefined}>
+        <path d={map.d} />
+      </svg>
+    </span>
+  );
 }

@@ -56,12 +56,12 @@ function ResourcesInner() {
         <ul className="card divide-y divide-[var(--line)] overflow-hidden">
           {data.items.map((r, i) => (
             <li key={r._id} className="rise-in" style={{ animationDelay: `${Math.min(i, 12) * 25}ms` }}>
-              <Link href={`/ressources/${r._id}`} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-black/[.02]">
+              <Link href={`/ressources/${r._id}`} className="group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-ink/[.02]">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[14.5px] font-medium">{r.title}</p>
                   <p className="mt-0.5 text-[12.5px] text-muted">
                     {TYPE_LABELS[r.type] ?? r.type} · {classLabel(r.classLevel)} · {r.subjectCode} · {r.difficulty}
-                    {r.origin === "ai" && <Sparkles size={12} className="ml-1.5 inline text-[#8a2be2]" />}
+                    {r.origin === "ai" && <Sparkles size={12} className="ml-1.5 inline text-accent" />}
                   </p>
                 </div>
                 {typeof r.aiReview?.score === "number" && (

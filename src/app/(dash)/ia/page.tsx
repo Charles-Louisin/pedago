@@ -6,9 +6,7 @@ import { toast } from "sonner";
 import { RotateCcw, Square } from "lucide-react";
 import { api, classLabel, CLASS_LEVELS, JOB_STATUS, TYPE_LABELS } from "@/lib/api";
 import { BubbleButton, BubbleSlider } from "@/components/ui/Bubble";
-import { ChromaticOrbButton } from "@/components/ui/ChromaticButton";
-import { LiquidOrb } from "@/components/ui/LiquidOrb";
-import { Empty, PageHeader, Pill, Select, Skeleton } from "@/components/ui/kit";
+import { Empty, PageHeader, Pill, Select, Skeleton, StatusIcon } from "@/components/ui/kit";
 
 type Job = { _id: string; kind: string; status: string; params: Record<string, unknown>; spentUsd: number; budgetUsd: number; currentStep: number; steps: { name: string; status: string; error?: string }[]; lastError?: string; createdAt: string };
 type Usage = { model: string; step: string; calls: number; costUsd: number; tokensIn: number; tokensOut: number; cachedTokens: number; avgLatencyMs: number; failures: number };
@@ -65,7 +63,7 @@ export default function AiFactory() {
 
       <section className="card relative mb-5 overflow-hidden p-7">
         <div className="flex flex-wrap items-center gap-8">
-          <LiquidOrb size={110} state={active ? "thinking" : "idle"} />
+          <StatusIcon size={64} state={!aiReady ? "error" : active ? "busy" : "idle"} />
           <div className="grid flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Select label="Classe" value={classLevel} onChange={(e) => setClassLevel(e.target.value)}>
               {CLASS_LEVELS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -88,12 +86,12 @@ export default function AiFactory() {
               })}
             </div>
             <div className="flex items-end justify-end">
-              <ChromaticOrbButton label="Lancer la production" size={56} disabled={!aiReady || !types.length || launch.isPending} onClick={() => launch.mutate()} />
+              <BubbleButton tone="green" disabled={!aiReady || !types.length || launch.isPending} onClick={() => launch.mutate()}>Lancer la production</BubbleButton>
             </div>
           </div>
         </div>
         {stats.data && !aiReady && (
-          <p className="mt-5 rounded-xl bg-[#fff6db] px-4 py-2.5 text-[13px] text-[#8a6400]">Clé OpenRouter absente : renseigne <code>OPENROUTER_API_KEY</code> dans la configuration de l’API pour activer la production.</p>
+          <p className="mt-5 rounded-xl bg-[var(--sun-soft)] px-4 py-2.5 text-[13px] text-sun">Clé OpenRouter absente : renseigne <code>OPENROUTER_API_KEY</code> dans la configuration de l’API pour activer la production.</p>
         )}
         <p className="mt-5 text-[12.5px] text-muted">Seules les leçons au statut « validée » du référentiel sont utilisées. Une ressource déjà existante n’est jamais régénérée (aucune dépense).</p>
       </section>
@@ -109,7 +107,7 @@ export default function AiFactory() {
                     <p className="text-[14px] font-medium">{KIND_LABELS[j.kind]} <span className="text-muted">· {j.params.classLevel ? classLabel(String(j.params.classLevel)) : TYPE_LABELS[String(j.params.type)] ?? ""}</span></p>
                     <div className="mt-1.5 flex gap-1">
                       {j.steps.map((s) => (
-                        <span key={s.name} title={`${s.name} : ${s.status}${s.error ? ` — ${s.error}` : ""}`} className={`h-1.5 flex-1 rounded-full ${s.status === "done" ? "bg-green" : s.status === "running" ? "animate-pulse bg-blue" : s.status === "failed" ? "bg-red" : s.status === "skipped" ? "bg-black/10" : "bg-black/[.07]"}`} />
+                        <span key={s.name} title={`${s.name} : ${s.status}${s.error ? ` — ${s.error}` : ""}`} className={`h-1.5 flex-1 rounded-full ${s.status === "done" ? "bg-green" : s.status === "running" ? "animate-pulse bg-blue" : s.status === "failed" ? "bg-red" : s.status === "skipped" ? "bg-ink/10" : "bg-ink/[.07]"}`} />
                       ))}
                     </div>
                     {j.lastError && j.status !== "done" && <p className="mt-1 truncate text-[12px] text-red">{j.lastError}</p>}
