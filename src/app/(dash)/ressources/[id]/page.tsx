@@ -216,7 +216,7 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
                 })}
               </ul>
             ) : (
-              <p className="mt-2 text-[13px] text-red">Aucune source : une ressource IA ne peut pas être approuvée sans source.</p>
+              <p className={`mt-2 text-[13px] ${r.origin === "ai" ? "text-red" : "text-muted"}`}>{r.origin === "ai" ? "Aucune source : une ressource IA ne peut pas être approuvée sans source." : "Aucune source rattachée (contenu de démonstration)."}</p>
             )}
           </div>
 
