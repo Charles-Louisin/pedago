@@ -67,7 +67,7 @@ export default function LoginPage() {
                 <br />
                 pédagogique fiable,
                 <br />
-                <span className="text-green">pensée au Cameroun.</span>
+                <span className="text-muted">pensée au Cameroun.</span>
               </h1>
               <p className="mt-5 text-[15px] leading-relaxed text-ink-2">
                 Sources officielles, génération assistée, contrôle indépendant et validation humaine avant chaque publication.

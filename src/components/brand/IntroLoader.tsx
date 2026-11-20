@@ -118,6 +118,16 @@ export function IntroGate({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(seen ? "done" : "intro");
   }, []);
+  // Pendant l'intro, la page ne défile pas : aucune barre de défilement ne peut apparaître.
+  useEffect(() => {
+    if (state === "done") return;
+    const root = document.documentElement;
+    const previous = root.style.overflow;
+    root.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = previous;
+    };
+  }, [state]);
   return (
     <>
       {state === "intro" && (
@@ -132,9 +142,9 @@ export function IntroGate({ children }: { children: React.ReactNode }) {
       )}
       <div
         style={{
-          transform: state === "done" ? "none" : "translateY(40px) scale(.97)",
+          // Fondu seulement (sans déplacement) : le contenu ne déborde jamais de l'écran.
           opacity: state === "done" ? 1 : 0,
-          transition: "transform .9s cubic-bezier(.22,1,.36,1), opacity .6s",
+          transition: "opacity .6s",
         }}
       >
         {children}
