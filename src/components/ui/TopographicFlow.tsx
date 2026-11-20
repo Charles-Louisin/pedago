@@ -61,8 +61,11 @@ export function TopographicFlow({
     let last = performance.now();
     const CELL = 10;
 
+    let visible = true;
+    let lastFrame = 0;
     const resize = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      // Traits fins : une résolution de 1,5x suffit et divise le coût de dessin par ~2 sur écrans Retina.
+      const dpr = Math.min(1.5, window.devicePixelRatio || 1);
       canvas.width = canvas.clientWidth * dpr;
       canvas.height = canvas.clientHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -71,7 +74,25 @@ export function TopographicFlow({
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
 
+    // Pause hors écran (le canvas ne consomme rien quand il n'est pas visible).
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible && !reduced) {
+        cancelAnimationFrame(raf);
+        last = performance.now();
+        raf = requestAnimationFrame(draw);
+      }
+    });
+    io.observe(canvas);
+
     const draw = (now: number) => {
+      if (!visible) return;
+      // Mouvement très lent : 30 images/s suffisent, la moitié du travail à 60 Hz.
+      if (now - lastFrame < 33) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+      lastFrame = now;
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       t += dt * speed;
@@ -131,6 +152,7 @@ export function TopographicFlow({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [lines, speed, color, dashed]);

@@ -85,7 +85,7 @@ export default function SourcesPage() {
                   <p className="text-[12.5px] text-muted">{s.issuer} · {RIGHTS[s.usageRights]}{s.publishedOn ? ` · publié le ${s.publishedOn}` : ""}</p>
                 </div>
                 <Pill status={s.status === "verified" ? "validated" : s.status === "extracted" ? "extracted" : "DRAFT"}>{s.status}</Pill>
-                {(s.url || s.fileUrl) && <a href={s.fileUrl ?? s.url} target="_blank" rel="noreferrer" className="bubble inline-flex h-9 w-9 items-center justify-center" aria-label="Ouvrir"><ExternalLink size={15} /></a>}
+                {/^https?:\/\//.test(s.fileUrl ?? s.url ?? "") && <a href={s.fileUrl ?? s.url} target="_blank" rel="noreferrer" className="bubble inline-flex h-9 w-9 items-center justify-center" aria-label="Ouvrir"><ExternalLink size={15} /></a>}
                 <BubbleButton size="sm" onClick={() => setExtract({ id: s._id, classLevel: "CP", subjectCode: "MATH" })}><Wand2 size={14} /> Extraire</BubbleButton>
               </div>
               {extract?.id === s._id && (
@@ -94,7 +94,7 @@ export default function SourcesPage() {
                     {CLASS_LEVELS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </Select>
                   <BubbleField label="Code matière" value={extract.subjectCode} onChange={(e) => setExtract({ ...extract, subjectCode: e.target.value.toUpperCase() })} className="w-36" />
-                  <BubbleButton tone="green" onClick={() => runExtract.mutate()} disabled={runExtract.isPending}>Lancer l'extraction</BubbleButton>
+                  <BubbleButton tone="green" onClick={() => runExtract.mutate()} disabled={runExtract.isPending}>Lancer l’extraction</BubbleButton>
                 </div>
               )}
             </li>

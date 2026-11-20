@@ -5,7 +5,7 @@ import { use, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AlertTriangle, ArrowLeft, Check, ExternalLink, FileText, RotateCcw, Send, X } from "lucide-react";
-import { api, STATUS_LABELS, TYPE_LABELS } from "@/lib/api";
+import { api, classLabel, STATUS_LABELS, TYPE_LABELS } from "@/lib/api";
 import { BubbleButton } from "@/components/ui/Bubble";
 import { PageHeader, Pill, Skeleton } from "@/components/ui/kit";
 
@@ -91,7 +91,7 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
         <ArrowLeft size={15} /> Ressources
       </Link>
       <PageHeader
-        eyebrow={`${TYPE_LABELS[r.type] ?? r.type} · ${r.classLevel} · ${r.subjectCode} · v${r.contentVersion}`}
+        eyebrow={`${TYPE_LABELS[r.type] ?? r.type} · ${classLabel(r.classLevel)} · ${r.subjectCode} · v${r.contentVersion}`}
         title={r.title}
         actions={<Pill status={r.status}>{STATUS_LABELS[r.status]}</Pill>}
       />

@@ -51,6 +51,8 @@ export const CLASS_LEVELS = [
   ["CLASS_1", "Class One"], ["CLASS_2", "Class Two"], ["CLASS_3", "Class Three"], ["CLASS_4", "Class Four"], ["CLASS_5", "Class Five"], ["CLASS_6", "Class Six"],
 ] as const;
 
+export const classLabel = (code: string) => (CLASS_LEVELS.find(([v]) => v === code)?.[1] ?? code);
+
 export const JOB_STATUS: Record<string, string> = {
   queued: "En file",
   running: "En cours",

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { API_URL, clearSession, getSessionUser, getTokens, setSession } from "@/lib/server/session";
+import { API_URL, clearSession, getSessionUser, getTokens, sameOrigin, setSession } from "@/lib/server/session";
 
 export async function GET() {
   const user = await getSessionUser();
@@ -7,10 +7,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (!sameOrigin(req)) return NextResponse.json({ message: "Origine refusée" }, { status: 403 });
   const body = (await req.json().catch(() => ({}))) as { identifier?: string; password?: string };
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Forwarded-For": req.headers.get("x-forwarded-for") ?? "" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ identifier: body.identifier, password: body.password, device: "Admin web" }),
     cache: "no-store",
   });

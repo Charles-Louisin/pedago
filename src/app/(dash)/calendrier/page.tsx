@@ -20,7 +20,7 @@ export default function CalendarPage() {
             <h2 className="text-[20px] font-semibold">{c.schoolYear}</h2>
             {!c.verified && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fff6db] px-3 py-1 text-[12px] font-semibold text-[#8a6400]">
-                <AlertTriangle size={13} /> À vérifier contre l'arrêté officiel
+                <AlertTriangle size={13} /> À vérifier contre l’arrêté officiel
               </span>
             )}
           </div>

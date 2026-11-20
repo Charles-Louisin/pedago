@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { API_URL, clearSession, getTokens, refreshTokens } from "@/lib/server/session";
+import { API_URL, clearSession, getTokens, refreshTokens, sameOrigin } from "@/lib/server/session";
 
 /** Proxy vers l'API : seules les routes admin et bibliothèque sont relayées. */
 const ALLOWED = /^(admin|library)\//;
@@ -7,6 +7,8 @@ const ALLOWED = /^(admin|library)\//;
 async function forward(req: NextRequest, path: string[]) {
   const target = path.join("/");
   if (!ALLOWED.test(target)) return NextResponse.json({ message: "Route non autorisée" }, { status: 404 });
+  // Protection CSRF en plus des cookies SameSite : les écritures doivent venir de l'admin lui-même.
+  if (req.method !== "GET" && !sameOrigin(req)) return NextResponse.json({ message: "Origine refusée" }, { status: 403 });
   let { access } = await getTokens();
   const { refresh } = await getTokens();
   if (!access && refresh) access = (await refreshTokens(refresh)) ?? undefined;

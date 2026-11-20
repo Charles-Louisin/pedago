@@ -65,7 +65,7 @@ export function BubbleField({ label, className, ...rest }: InputHTMLAttributes<H
     <label className={clsx("block", className)}>
       {label && <span className="mb-1.5 block text-[12px] font-medium text-muted">{label}</span>}
       <span className="bubble-field flex h-11 items-center px-4">
-        <input {...rest} className="w-full bg-transparent text-[14px] outline-none placeholder:text-faint" />
+        <input aria-label={label ?? rest.placeholder} {...rest} className="w-full bg-transparent text-[14px] outline-none placeholder:text-faint" />
       </span>
     </label>
   );

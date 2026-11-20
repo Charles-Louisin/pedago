@@ -114,6 +114,8 @@ export function IntroGate({ children }: { children: React.ReactNode }) {
     try {
       seen = sessionStorage.getItem("pedago-intro") === "1";
     } catch {}
+    // Lecture du stockage navigateur après hydratation (indisponible côté serveur) : setState voulu ici.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(seen ? "done" : "intro");
   }, []);
   return (

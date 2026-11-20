@@ -18,7 +18,7 @@ type Stats = {
 };
 
 export default function Overview() {
-  const { data, isLoading } = useQuery({ queryKey: ["stats"], queryFn: () => api<Stats>("admin/stats"), refetchInterval: 20_000 });
+  const { data, isLoading } = useQuery({ queryKey: ["stats"], queryFn: () => api<Stats>("admin/stats"), refetchInterval: 30_000, refetchIntervalInBackground: false });
   const running = (data?.jobs.running ?? 0) + (data?.jobs.queued ?? 0);
   const toReview = data?.resources.HUMAN_REVIEW ?? 0;
   const maxCost = Math.max(0.0001, ...(data?.costByDay.map((c) => c.costUsd) ?? [0]));
@@ -29,7 +29,7 @@ export default function Overview() {
       <PageHeader eyebrow="Vue d'ensemble" title="Bonjour" description="L'état de la bibliothèque, des relectures et de la production IA." />
 
       <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
-        <section className="card relative flex items-center gap-7 overflow-hidden p-7 rise-in">
+        <section className="card relative flex flex-col items-start gap-6 overflow-hidden p-6 sm:flex-row sm:items-center sm:gap-7 sm:p-7 rise-in">
           <LiquidOrb size={132} state={!data?.aiConfigured ? "error" : running ? "thinking" : toReview ? "searching" : "idle"} />
           <div className="min-w-0">
             <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted">Usine IA</p>
@@ -39,7 +39,7 @@ export default function Overview() {
             <p className="mt-1.5 text-[14px] text-muted">
               {toReview ? `${toReview} ressource(s) attendent une validation humaine.` : "Aucune ressource n'attend de relecture."}
             </p>
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               <Link href="/ressources?status=HUMAN_REVIEW" className="bubble inline-flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold">
                 Relire <ArrowUpRight size={15} />
               </Link>

@@ -110,6 +110,12 @@ h3 {
   opacity: 0.5;
   pointer-events: none;
 }
+.bubble-green::after,
+.bubble-ink::after,
+.bubble-red::after {
+  opacity: 0.28;
+  height: 38%;
+}
 .bubble-green {
   color: #fff;
   background:

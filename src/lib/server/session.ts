@@ -39,7 +39,22 @@ export async function getTokens() {
 }
 
 /** Rafraîchit le jeton d'accès (rotation du refresh token côté API). */
+const refreshing = new Map<string, Promise<{ accessToken: string; refreshToken: string; expiresIn: number } | null>>();
+
+/** Un seul rafraîchissement par jeton, même si plusieurs requêtes expirent en même temps. */
 export async function refreshTokens(refresh: string) {
+  let pending = refreshing.get(refresh);
+  if (!pending) {
+    pending = doRefresh(refresh).finally(() => setTimeout(() => refreshing.delete(refresh), 10_000));
+    refreshing.set(refresh, pending);
+  }
+  const tokens = await pending;
+  if (!tokens) return null;
+  await setSession(tokens);
+  return tokens.accessToken;
+}
+
+async function doRefresh(refresh: string) {
   const res = await fetch(`${API_URL}/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -47,7 +62,18 @@ export async function refreshTokens(refresh: string) {
     cache: "no-store",
   });
   if (!res.ok) return null;
-  const tokens = (await res.json()) as { accessToken: string; refreshToken: string; expiresIn: number };
-  await setSession(tokens);
-  return tokens.accessToken;
+  return (await res.json()) as { accessToken: string; refreshToken: string; expiresIn: number };
+}
+
+/** Vérifie que la requête vient de l'admin lui-même (en-têtes Origin ou Sec-Fetch-Site). */
+export function sameOrigin(req: Request) {
+  const site = req.headers.get("sec-fetch-site");
+  if (site) return site === "same-origin";
+  const origin = req.headers.get("origin");
+  if (!origin) return false;
+  try {
+    return new URL(origin).host === req.headers.get("host");
+  } catch {
+    return false;
+  }
 }

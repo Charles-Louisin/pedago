@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { RotateCcw, Square } from "lucide-react";
-import { api, CLASS_LEVELS, JOB_STATUS, TYPE_LABELS } from "@/lib/api";
+import { api, classLabel, CLASS_LEVELS, JOB_STATUS, TYPE_LABELS } from "@/lib/api";
 import { BubbleButton, BubbleSlider } from "@/components/ui/Bubble";
 import { ChromaticOrbButton } from "@/components/ui/ChromaticButton";
 import { LiquidOrb } from "@/components/ui/LiquidOrb";
@@ -27,7 +27,14 @@ export default function AiFactory() {
   const [types, setTypes] = useState<string[]>(["lesson_plan", "exercises", "assessment"]);
   const [budget, setBudget] = useState(50);
 
-  const jobs = useQuery({ queryKey: ["jobs"], queryFn: () => api<{ items: Job[] }>("admin/ai/jobs?limit=40"), refetchInterval: 5000 });
+  // Actualisation rapide seulement quand des tâches tournent.
+  const jobs = useQuery({
+    queryKey: ["jobs"],
+    queryFn: () => api<{ items: Job[] }>("admin/ai/jobs?limit=40"),
+    refetchInterval: (q) => (q.state.data?.items.some((j) => j.status === "queued" || j.status === "running") ? 4000 : 30000),
+  });
+  const stats = useQuery({ queryKey: ["stats"], queryFn: () => api<{ aiConfigured: boolean }>("admin/stats") });
+  const aiReady = stats.data?.aiConfigured ?? false;
   const usage = useQuery({ queryKey: ["usage"], queryFn: () => api<Usage[]>("admin/ai/usage") });
   const subjects = useQuery({ queryKey: ["subjects"], queryFn: () => api<{ code: string; name: string; subsystem: string }[]>("admin/subjects") });
   const subsystem = classLevel.startsWith("CLASS_") ? "anglophone" : "francophone";
@@ -81,11 +88,14 @@ export default function AiFactory() {
               })}
             </div>
             <div className="flex items-end justify-end">
-              <ChromaticOrbButton label="Lancer la production" size={56} disabled={!types.length || launch.isPending} onClick={() => launch.mutate()} />
+              <ChromaticOrbButton label="Lancer la production" size={56} disabled={!aiReady || !types.length || launch.isPending} onClick={() => launch.mutate()} />
             </div>
           </div>
         </div>
-        <p className="mt-5 text-[12.5px] text-muted">Seules les leçons au statut « validée » du référentiel sont utilisées. Une ressource déjà existante n'est jamais régénérée (aucune dépense).</p>
+        {stats.data && !aiReady && (
+          <p className="mt-5 rounded-xl bg-[#fff6db] px-4 py-2.5 text-[13px] text-[#8a6400]">Clé OpenRouter absente : renseigne <code>OPENROUTER_API_KEY</code> dans la configuration de l’API pour activer la production.</p>
+        )}
+        <p className="mt-5 text-[12.5px] text-muted">Seules les leçons au statut « validée » du référentiel sont utilisées. Une ressource déjà existante n’est jamais régénérée (aucune dépense).</p>
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[1fr_420px]">
@@ -96,7 +106,7 @@ export default function AiFactory() {
               {jobs.data.items.map((j) => (
                 <li key={j._id} className="flex items-center gap-4 px-5 py-3.5">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-medium">{KIND_LABELS[j.kind]} <span className="text-muted">· {String(j.params.classLevel ?? j.params.type ?? "")}</span></p>
+                    <p className="text-[14px] font-medium">{KIND_LABELS[j.kind]} <span className="text-muted">· {j.params.classLevel ? classLabel(String(j.params.classLevel)) : TYPE_LABELS[String(j.params.type)] ?? ""}</span></p>
                     <div className="mt-1.5 flex gap-1">
                       {j.steps.map((s) => (
                         <span key={s.name} title={`${s.name} : ${s.status}${s.error ? ` — ${s.error}` : ""}`} className={`h-1.5 flex-1 rounded-full ${s.status === "done" ? "bg-green" : s.status === "running" ? "animate-pulse bg-blue" : s.status === "failed" ? "bg-red" : s.status === "skipped" ? "bg-black/10" : "bg-black/[.07]"}`} />

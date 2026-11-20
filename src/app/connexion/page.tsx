@@ -58,7 +58,7 @@ export default function LoginPage() {
               <PedagoWordmark />
             </div>
             <h2 className="text-[28px] font-semibold">Connexion</h2>
-            <p className="mb-8 mt-1.5 text-[14px] text-muted">Accède à l'espace de relecture et de publication.</p>
+            <p className="mb-8 mt-1.5 text-[14px] text-muted">Accède à l’espace de relecture et de publication.</p>
             <div className="space-y-4">
               <BubbleField label="E-mail" type="email" autoComplete="username" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} placeholder="nom@exemple.cm" />
               <BubbleField label="Mot de passe" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
