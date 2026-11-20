@@ -5,21 +5,23 @@ export const API_URL = (process.env.PEDAGO_API_URL || "http://localhost:5100/api
 const ACCESS = "pedago_at";
 const REFRESH = "pedago_rt";
 const USER = "pedago_user";
+const MFA = "pedago_mfa";
 const secure = process.env.NODE_ENV === "production";
 
-export type SessionUser = { id: string; fullName: string; email: string | null; role: "teacher" | "reviewer" | "admin" };
+/** mfa : session ouverte avec la double authentification (sinon, seule la page Sécurité est accessible). */
+export type SessionUser = { id: string; fullName: string; email: string | null; role: "teacher" | "reviewer" | "admin"; mfa?: boolean };
 
 export async function setSession(tokens: { accessToken: string; refreshToken: string; expiresIn: number }, user?: SessionUser) {
   const jar = await cookies();
   const base = { httpOnly: true, sameSite: "lax" as const, secure, path: "/" };
   jar.set(ACCESS, tokens.accessToken, { ...base, maxAge: tokens.expiresIn });
   jar.set(REFRESH, tokens.refreshToken, { ...base, maxAge: 30 * 86_400 });
-  if (user) jar.set(USER, JSON.stringify({ id: user.id, fullName: user.fullName, email: user.email, role: user.role }), { ...base, maxAge: 30 * 86_400 });
+  if (user) jar.set(USER, JSON.stringify({ id: user.id, fullName: user.fullName, email: user.email, role: user.role, mfa: Boolean(user.mfa) }), { ...base, maxAge: 30 * 86_400 });
 }
 
 export async function clearSession() {
   const jar = await cookies();
-  for (const name of [ACCESS, REFRESH, USER]) jar.delete(name);
+  for (const name of [ACCESS, REFRESH, USER, MFA]) jar.delete(name);
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -76,4 +78,18 @@ export function sameOrigin(req: Request) {
   } catch {
     return false;
   }
+}
+
+/** Étape intermédiaire de connexion : le jeton de 2FA reste côté serveur (cookie httpOnly, 5 min). */
+export async function setMfaChallenge(token: string) {
+  (await cookies()).set(MFA, token, { httpOnly: true, sameSite: "strict", secure, path: "/api/session", maxAge: 300 });
+}
+
+export async function takeMfaChallenge() {
+  const jar = await cookies();
+  return jar.get(MFA)?.value;
+}
+
+export async function clearMfaChallenge() {
+  (await cookies()).delete({ name: MFA, path: "/api/session" });
 }

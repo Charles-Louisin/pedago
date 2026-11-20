@@ -6,13 +6,13 @@ import { api } from "@/lib/api";
 import { BubbleSwitch } from "@/components/ui/Bubble";
 import { PageHeader, Skeleton } from "@/components/ui/kit";
 
-type U = { _id: string; fullName: string; email?: string; phone?: string; role: string; disabled: boolean; lastLoginAt?: string };
+type U = { _id: string; fullName: string; email?: string; phone?: string; role: string; disabled: boolean; mfaEnabled?: boolean; lastLoginAt?: string };
 
 export default function UsersPage() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["users"], queryFn: () => api<{ items: U[]; total: number }>("admin/users?limit=100") });
   const patch = useMutation({
-    mutationFn: ({ id, body }: { id: string; body: Partial<U> }) => api(`admin/users/${id}`, { method: "PATCH", body }),
+    mutationFn: ({ id, body }: { id: string; body: Partial<U> & { resetMfa?: true } }) => api(`admin/users/${id}`, { method: "PATCH", body }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
     onError: (e: Error) => toast.error(e.message),
   });
@@ -32,6 +32,22 @@ export default function UsersPage() {
               <select value={u.role} onChange={(e) => patch.mutate({ id: u._id, body: { role: e.target.value } })} className="bubble-field h-9 px-3 text-[13px] outline-none" aria-label="Rôle">
                 <option value="teacher">Enseignant</option><option value="reviewer">Relecteur</option><option value="admin">Administrateur</option>
               </select>
+              {u.role !== "teacher" && (
+                <span className="flex items-center gap-2 text-[12.5px]">
+                  <span className={u.mfaEnabled ? "text-green" : "text-red"}>{u.mfaEnabled ? "2FA active" : "2FA à activer"}</span>
+                  {u.mfaEnabled && (
+                    <button
+                      type="button"
+                      className="font-medium text-muted underline-offset-2 hover:underline"
+                      onClick={() => {
+                        if (window.confirm(`Réinitialiser la double authentification de ${u.fullName} ? Ses sessions seront fermées.`)) patch.mutate({ id: u._id, body: { resetMfa: true } });
+                      }}
+                    >
+                      Réinitialiser
+                    </button>
+                  )}
+                </span>
+              )}
               <span className="flex items-center gap-2 text-[12.5px] text-muted">
                 Actif <BubbleSwitch label="Compte actif" checked={!u.disabled} onChange={(v) => patch.mutate({ id: u._id, body: { disabled: !v } })} />
               </span>

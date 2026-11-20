@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { API_URL, clearSession, getSessionUser, getTokens, sameOrigin, setSession } from "@/lib/server/session";
+import { API_URL, clearSession, getSessionUser, getTokens, sameOrigin, setMfaChallenge, setSession } from "@/lib/server/session";
 
 export async function GET() {
   const user = await getSessionUser();
@@ -17,13 +17,19 @@ export async function POST(req: Request) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return NextResponse.json({ message: data.message ?? "Connexion impossible" }, { status: res.status });
+  // Mot de passe correct, double authentification active : on demande le code.
+  if (data.mfaRequired) {
+    await setMfaChallenge(data.mfaToken);
+    return NextResponse.json({ mfaRequired: true });
+  }
   // Le tableau de bord est réservé à l'équipe éditoriale.
   if (data.user.role === "teacher") {
     await fetch(`${API_URL}/auth/logout`, { method: "POST", headers: { Authorization: `Bearer ${data.accessToken}` } });
     return NextResponse.json({ message: "Ce compte n'a pas accès à l'administration" }, { status: 403 });
   }
-  await setSession(data, data.user);
-  return NextResponse.json({ user: data.user });
+  // Compte de l'équipe sans double authentification : seule la page d'activation est accessible.
+  await setSession(data, { ...data.user, mfa: false });
+  return NextResponse.json({ user: data.user, mfaSetup: true });
 }
 
 export async function DELETE() {

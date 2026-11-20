@@ -5,6 +5,8 @@ import { Sidebar } from "@/components/layout/Sidebar";
 export default async function DashLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
   if (!user) redirect("/connexion");
+  // Équipe : rien n'est accessible tant que la double authentification n'est pas validée.
+  if (!user.mfa) redirect("/securite");
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[248px_1fr]">
       <Sidebar user={user} />

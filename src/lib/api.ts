@@ -18,6 +18,9 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
   }
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => ({}));
+  if (res.status === 403 && data.code === "MFA_REQUIRED" && typeof window !== "undefined") {
+    window.location.href = "/securite";
+  }
   if (!res.ok) throw new ApiError(res.status, data.message ?? "Erreur");
   return data as T;
 }

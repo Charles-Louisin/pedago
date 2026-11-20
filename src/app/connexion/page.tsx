@@ -14,6 +14,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Étape 2 : code de l'application d'authentification (ou code de secours).
+  const [mfa, setMfa] = useState(false);
+  const [useRecovery, setUseRecovery] = useState(false);
+  const [code, setCode] = useState("");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,6 +27,27 @@ export default function LoginPage() {
     const data = await res.json().catch(() => ({}));
     setLoading(false);
     if (!res.ok) return setError(data.message ?? "Connexion impossible");
+    if (data.mfaRequired) return setMfa(true);
+    router.replace(data.mfaSetup ? "/securite" : "/");
+  }
+
+  async function verify(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const clean = code.trim();
+    const res = await fetch("/api/session/mfa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(useRecovery ? { recoveryCode: clean } : { code: clean.replace(/\s/g, "") }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setLoading(false);
+    if (data.expired) {
+      setMfa(false);
+      setCode("");
+    }
+    if (!res.ok) return setError(data.message ?? "Code incorrect");
     router.replace("/");
   }
 
@@ -53,6 +78,34 @@ export default function LoginPage() {
         </section>
 
         <section className="flex items-center justify-center p-6">
+          {mfa ? (
+            <form onSubmit={verify} className="w-full max-w-[380px] rise-in">
+              <div className="mb-10 lg:hidden">
+                <PedagoWordmark />
+              </div>
+              <h2 className="text-[28px] font-semibold">{useRecovery ? "Code de secours" : "Code de vérification"}</h2>
+              <p className="mb-8 mt-1.5 text-[14px] text-muted">{useRecovery ? "Un des 8 codes notés à l’activation." : "Ouvre ton application d’authentification."}</p>
+              <BubbleField
+                key={useRecovery ? "r" : "c"}
+                label={useRecovery ? "Code de secours" : "Code à 6 chiffres"}
+                inputMode={useRecovery ? "text" : "numeric"}
+                autoComplete="one-time-code"
+                autoFocus
+                required
+                maxLength={useRecovery ? 12 : 7}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder={useRecovery ? "ABCD-EFGH" : "123 456"}
+              />
+              {error && <p className="mt-4 rounded-xl bg-red/10 px-4 py-2.5 text-[13px] text-red">{error}</p>}
+              <BubbleButton tone="ink" size="lg" className="mt-8 w-full" disabled={loading}>
+                {loading ? "Vérification…" : "Valider"} <ArrowRight size={18} />
+              </BubbleButton>
+              <button type="button" className="mt-4 w-full text-[13px] font-medium text-green" onClick={() => { setUseRecovery(!useRecovery); setCode(""); setError(null); }}>
+                {useRecovery ? "Utiliser l’application" : "Téléphone perdu ? Code de secours"}
+              </button>
+            </form>
+          ) : (
           <form onSubmit={submit} className="w-full max-w-[380px] rise-in" style={{ animationDelay: "120ms" }}>
             <div className="mb-10 lg:hidden">
               <PedagoWordmark />
@@ -68,6 +121,7 @@ export default function LoginPage() {
               {loading ? "Connexion…" : "Continuer"} <ArrowRight size={18} />
             </BubbleButton>
           </form>
+          )}
         </section>
       </main>
     </IntroGate>
