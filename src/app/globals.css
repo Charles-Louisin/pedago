@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+/*
+ * PEDAGO — système visuel
+ * Toile gris très clair, encre presque noire, lignes de guidage fines, contrôles « bulle de savon »
+ * (verre brillant, reflets, ombres internes). Vert camerounais comme accent principal.
+ */
+:root {
+  --canvas: #f4f4f2;
+  --surface: #ffffff;
+  --surface-2: #fafaf9;
+  --ink: #111214;
+  --ink-2: #3a3d42;
+  --muted: #6b6f76;
+  --faint: #a3a7ad;
+  --line: rgba(17, 18, 20, 0.08);
+  --line-strong: rgba(17, 18, 20, 0.14);
+  --green: #0b8a55;
+  --green-bubble: #34c759;
+  --sun: #f2b705;
+  --red: #d93a2b;
+  --blue: #2f6fed;
+  --magenta: #c21cb4;
+  --radius: 18px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-green: var(--green);
+  --color-sun: var(--sun);
+  --color-red: var(--red);
+  --color-blue: var(--blue);
+  --font-sans: var(--font-inter);
+}
+
+html,
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.03em;
+}
+
+::selection {
+  background: rgba(11, 138, 85, 0.18);
+}
+
+/* ───────── Bulle de savon (recréée depuis Bubble UI) ───────── */
+
+.bubble {
+  position: relative;
+  isolation: isolate;
+  border-radius: 999px;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 90% at 30% 15%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 55%),
+    linear-gradient(180deg, #f3f3f3 0%, #e4e4e4 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 6px 14px -6px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.25s var(--ease-out),
+    filter 0.25s;
+}
+.bubble::after {
+  /* reflet spéculaire en arc, comme une pellicule de savon */
+  content: "";
+  position: absolute;
+  inset: 2px 12% auto 12%;
+  height: 42%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: -1;
+}
+.bubble:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 10px 22px -8px rgba(0, 0, 0, 0.22);
+}
+.bubble:active {
+  transform: scale(0.96);
+  transition-duration: 0.12s;
+}
+.bubble:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.bubble-green {
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 30% 10%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #4fd774 0%, #23b14d 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    inset 0 -3px 6px rgba(0, 70, 20, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 8px 18px -8px rgba(35, 177, 77, 0.6);
+}
+.bubble-ink {
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 30% 10%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #2a2c30 0%, #0f1012 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.4),
+    0 8px 18px -8px rgba(0, 0, 0, 0.5);
+}
+.bubble-red {
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 30% 10%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #ef5a4a 0%, #c92d1e 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    inset 0 -3px 6px rgba(90, 10, 0, 0.25),
+    0 8px 18px -8px rgba(217, 58, 43, 0.6);
+}
+
+/* Champ « bulle » (recherche) */
+.bubble-field {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #efefef 0%, #f7f7f7 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.07),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.7);
+  transition: box-shadow 0.2s;
+}
+.bubble-field:focus-within {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.07),
+    0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 0 0 4px rgba(52, 199, 89, 0.18);
+}
+
+/* Bouton d'interrupteur en verre (le bouton laisse voir la piste à travers lui) */
+.glass-knob {
+  border-radius: 999px;
+  background: radial-gradient(120% 100% at 50% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.35) 60%, rgba(255, 255, 255, 0.55));
+  backdrop-filter: blur(2px) saturate(1.6);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.95),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+/* Cartes et surfaces */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.hairline-x {
+  background-image: linear-gradient(to right, var(--line-strong), var(--line-strong));
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+}
+
+/* Grain léger (finition des surfaces en verre) */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.14;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+.rise-in {
+  animation: rise-in 0.7s var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
