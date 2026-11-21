@@ -7,10 +7,10 @@ Tableau de bord de l'équipe éditoriale : sources officielles, référentiel, u
 ```bash
 npm install
 cp .env.example .env.local
-npm run dev   # http://localhost:3100
+npm run dev   # http://localhost:3000
 ```
 
-L'API `pedago-api` doit tourner sur le port 5100. Comptes de test : voir `pedago-api/.env.example` (`SEED_ADMIN_*`, `SEED_REVIEWER_*`).
+L'API `pedago-api` doit tourner sur le port 5000. Comptes de test : voir `pedago-api/.env.example` (`SEED_ADMIN_*`, `SEED_REVIEWER_*`).
 
 ## Sécurité
 

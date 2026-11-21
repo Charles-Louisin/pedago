@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-export const API_URL = (process.env.PEDAGO_API_URL || "http://localhost:5100/api/v1").replace(/\/$/, "");
+export const API_URL = (process.env.PEDAGO_API_URL || "http://localhost:5000/api/v1").replace(/\/$/, "");
 
 const ACCESS = "pedago_at";
 const REFRESH = "pedago_rt";
