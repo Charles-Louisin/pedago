@@ -114,3 +114,19 @@ export function StatusIcon({ state, size = 56 }: { state: "idle" | "busy" | "war
     </span>
   );
 }
+
+/**
+ * Document PDF affiché dans l'admin (fichier source, ressource à valider) : visionneuse du navigateur,
+ * hauteur confortable, lien pour l'ouvrir en grand. `onShown` signale qu'il a bien été affiché.
+ */
+export function PdfFrame({ src, title, onShown, className }: { src: string; title: string; onShown?: () => void; className?: string }) {
+  return (
+    <div className={clsx("overflow-hidden rounded-2xl bg-[var(--surface-2)] shadow-[0_0_0_1px_var(--line)]", className)}>
+      <iframe src={src} title={title} onLoad={onShown} className="block h-[78vh] min-h-[480px] w-full border-0" />
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5 text-[12.5px] text-muted">
+        <span className="truncate">{title}</span>
+        <a href={src} target="_blank" rel="noreferrer" className="shrink-0 font-medium text-ink hover:underline">Ouvrir en grand</a>
+      </div>
+    </div>
+  );
+}

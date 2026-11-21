@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { AlertTriangle, ArrowLeft, Check, ExternalLink, FileText, RotateCcw, Send, X } from "lucide-react";
 import { api, classLabel, STATUS_LABELS, TYPE_LABELS } from "@/lib/api";
 import { BubbleButton } from "@/components/ui/Bubble";
-import { PageHeader, Pill, Skeleton } from "@/components/ui/kit";
+import { PageHeader, PdfFrame, Pill, Segmented, Select, Skeleton } from "@/components/ui/kit";
 
 type Exercise = { prompt: string; answer: string; explanation?: string; points?: number; competency?: string; illustration?: string };
 type Content = {
@@ -57,6 +57,10 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
   const { id } = use(params);
   const qc = useQueryClient();
   const [comment, setComment] = useState("");
+  // Le document se relit d'abord tel que les enseignants le recevront (PDF) ; la validation l'exige.
+  const [view, setView] = useState<"pdf" | "content">("pdf");
+  const [version, setVersion] = useState<number | null>(null);
+  const [seenPdf, setSeenPdf] = useState<number | null>(null);
   const { data, isLoading } = useQuery({ queryKey: ["resource", id], queryFn: () => api<Detail>(`admin/resources/${id}`) });
 
   const transition = useMutation({
@@ -84,6 +88,11 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
   const { resource: r, node, sources, reviews } = data;
   const c = r.content;
   const issues = r.aiReview?.issues ?? [];
+  const shown = version ?? r.contentVersion;
+  const pdfUrl = `/api/proxy/admin/resources/${id}/pdf?version=${shown}`;
+  // Approuver / publier : seulement après avoir affiché le PDF de la version en cours.
+  const pdfChecked = seenPdf === r.contentVersion;
+  const gate = pdfChecked ? undefined : "Affiche le PDF de la version en cours avant de valider";
 
   return (
     <>
@@ -97,6 +106,20 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
       />
 
       <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+        <div className="min-w-0 space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Segmented value={view} onChange={setView} options={[{ value: "pdf", label: "PDF (tel que publié)" }, { value: "content", label: "Contenu détaillé" }]} />
+          {view === "pdf" && data.versions.length > 1 && (
+            <Select aria-label="Version" value={String(shown)} onChange={(e) => setVersion(Number(e.target.value))} className="w-44">
+              {[r.contentVersion, ...data.versions.map((v) => v.contentVersion).filter((v) => v !== r.contentVersion)].map((v) => (
+                <option key={v} value={v}>{v === r.contentVersion ? `Version ${v} (en cours)` : `Version ${v}`}</option>
+              ))}
+            </Select>
+          )}
+        </div>
+        {view === "pdf" ? (
+          <PdfFrame key={pdfUrl} src={pdfUrl} title={`${r.title} — version ${shown}`} onShown={() => shown === r.contentVersion && setSeenPdf(r.contentVersion)} />
+        ) : (
         <article className="card p-7">
           {node && (
             <Section title="Leçon du référentiel">
@@ -146,6 +169,8 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
           {!!c.largeClassTips?.length && <Section title="Classe nombreuse"><List items={c.largeClassTips} /></Section>}
           {!!c.localContext?.length && <Section title="Ancrage local"><List items={c.localContext} /></Section>}
         </article>
+        )}
+        </div>
 
         <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
           <div className="card p-5">
@@ -160,7 +185,7 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
             <div className="mt-3 grid grid-cols-2 gap-2">
               {r.status === "HUMAN_REVIEW" && (
                 <>
-                  <BubbleButton tone="green" onClick={() => transition.mutate("APPROVED")} disabled={transition.isPending}><Check size={16} /> Approuver</BubbleButton>
+                  <BubbleButton tone="green" onClick={() => transition.mutate("APPROVED")} disabled={transition.isPending || !pdfChecked} title={gate}><Check size={16} /> Approuver</BubbleButton>
                   <BubbleButton tone="red" onClick={() => transition.mutate("REJECTED")} disabled={transition.isPending}><X size={16} /> Rejeter</BubbleButton>
                 </>
               )}
@@ -168,13 +193,16 @@ export default function ResourceReview({ params }: { params: Promise<{ id: strin
                 <BubbleButton className="col-span-2" onClick={() => transition.mutate("HUMAN_REVIEW")}>Envoyer en relecture</BubbleButton>
               )}
               {r.status === "APPROVED" && (
-                <BubbleButton tone="ink" className="col-span-2" onClick={() => transition.mutate("PUBLISHED")}><Send size={15} /> Publier</BubbleButton>
+                <BubbleButton tone="ink" className="col-span-2" onClick={() => transition.mutate("PUBLISHED")} disabled={transition.isPending || !pdfChecked} title={gate}><Send size={15} /> Publier</BubbleButton>
               )}
               {r.status === "PUBLISHED" && (
                 <BubbleButton className="col-span-2" onClick={() => revise.mutate()}><RotateCcw size={15} /> Créer une révision</BubbleButton>
               )}
               <BubbleButton size="sm" className="col-span-2" onClick={() => regenerate.mutate()}>Nouvelle relecture IA</BubbleButton>
             </div>
+            {["HUMAN_REVIEW", "APPROVED"].includes(r.status) && (
+              <p className="mt-3 text-[12.5px] text-muted">{pdfChecked ? "PDF de la version en cours affiché." : "Affiche le PDF de la version en cours pour pouvoir valider."}</p>
+            )}
           </div>
 
           <div className="card p-5">

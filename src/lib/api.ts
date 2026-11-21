@@ -65,3 +65,23 @@ export const JOB_STATUS: Record<string, string> = {
   cancelled: "Annulé",
   budget_exceeded: "Budget atteint",
 };
+
+/** Envoi d'un fichier (multipart) par le proxy de l'admin. */
+export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
+  const res = await fetch(`/api/proxy/${path.replace(/^\//, "")}`, { method: "POST", body: form });
+  if (res.status === 401 && typeof window !== "undefined") {
+    window.location.href = "/connexion";
+    throw new ApiError(401, "Session expirée");
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(res.status, data.message ?? "Erreur");
+  return data as T;
+}
+
+export const SOURCE_STATUS: Record<string, string> = {
+  pending: "À vérifier",
+  fetched: "Téléchargée",
+  extracted: "Texte lu",
+  verified: "Vérifiée",
+  rejected: "Écartée",
+};
