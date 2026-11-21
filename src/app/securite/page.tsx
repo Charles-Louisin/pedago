@@ -88,6 +88,8 @@ export default function SecurityPage() {
                 <p className="text-[13px] text-muted">Google Authenticator, Microsoft Authenticator, Aegis…</p>
                 <div className="mt-3 flex items-start gap-4">
                   <div className="grid size-[148px] shrink-0 place-items-center rounded-xl border border-[var(--line)] bg-white">
+                    {/* QR généré sur place (data: URL) : rien à optimiser par next/image. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {qr ? <img src={qr} alt="QR code de configuration" width={140} height={140} /> : <span className="text-[12px] text-muted">…</span>}
                   </div>
                   {setup && (
