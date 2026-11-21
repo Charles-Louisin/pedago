@@ -7,6 +7,7 @@ import { BookOpenCheck, CalendarDays, FileSearch, GitBranch, LayoutGrid, LogOut,
 import { clsx } from "clsx";
 import { PedagoWordmark } from "@/components/brand/PedagoMark";
 import { ThemeToggle } from "./ThemeToggle";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const SECTIONS = [
   { title: "Vue d'ensemble", items: [{ href: "/", label: "Tableau de bord", icon: LayoutGrid }] },
@@ -34,6 +35,8 @@ type User = { fullName: string; role: string };
 function NavContent({ user, onNavigate }: { user: User; onNavigate?: () => void }) {
   const path = usePathname();
   const router = useRouter();
+  const [confirmOut, setConfirmOut] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   return (
     <>
       <nav className="mt-9 flex-1 space-y-7 overflow-y-auto" aria-label="Navigation principale">
@@ -77,14 +80,24 @@ function NavContent({ user, onNavigate }: { user: User; onNavigate?: () => void 
           aria-label="Se déconnecter"
           title="Se déconnecter"
           className="rounded-lg p-1.5 text-muted hover:bg-ink/5 hover:text-ink"
-          onClick={async () => {
-            await fetch("/api/session", { method: "DELETE" });
-            router.replace("/connexion");
-          }}
+          onClick={() => setConfirmOut(true)}
         >
           <LogOut size={16} />
         </button>
       </div>
+      <ConfirmDialog
+        open={confirmOut}
+        title="Se déconnecter ?"
+        message="Tu devras saisir ton mot de passe et ton code de double authentification pour revenir."
+        confirmLabel={leaving ? "Déconnexion…" : "Se déconnecter"}
+        busy={leaving}
+        onCancel={() => setConfirmOut(false)}
+        onConfirm={async () => {
+          setLeaving(true);
+          await fetch("/api/session", { method: "DELETE" });
+          router.replace("/connexion");
+        }}
+      />
     </>
   );
 }
