@@ -43,13 +43,14 @@ export function Pill({ status, children }: { status: string; children: ReactNode
 /** Sélecteur segmenté façon pilule, avec indicateur glissant. */
 export function Segmented<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
   return (
-    <div className="bubble-field inline-flex gap-1 p-1">
+    // Sur un écran étroit, les options défilent dans la pilule (sans barre visible) au lieu d'élargir la page.
+    <div className="bubble-field inline-flex max-w-full gap-1 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {options.map((o) => (
         <button
           key={o.value}
           onClick={() => onChange(o.value)}
           className={clsx(
-            "rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-300",
+            "shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-300",
             value === o.value ? "bubble text-ink" : "text-muted hover:text-ink"
           )}
         >
