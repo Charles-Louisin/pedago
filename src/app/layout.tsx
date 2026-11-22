@@ -4,9 +4,9 @@ import { Providers } from "@/components/layout/Providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PEDAGO — Administration",
-  description: "Bibliothèque pédagogique, relecture et validation des ressources PEDAGO.",
-  robots: { index: false, follow: false },
+  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
+  title: { default: "PEDAGO", template: "%s — PEDAGO" },
+  description: "L’assistant de classe des enseignants du primaire au Cameroun.",
 };
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });

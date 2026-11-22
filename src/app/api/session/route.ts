@@ -22,10 +22,10 @@ export async function POST(req: Request) {
     await setMfaChallenge(data.mfaToken);
     return NextResponse.json({ mfaRequired: true });
   }
-  // Le tableau de bord est réservé à l'équipe éditoriale.
+  // Utilisateur (enseignant) : son espace sur le site ; le tableau de bord reste réservé à l'équipe.
   if (data.user.role === "teacher") {
-    await fetch(`${API_URL}/auth/logout`, { method: "POST", headers: { Authorization: `Bearer ${data.accessToken}` } });
-    return NextResponse.json({ message: "Ce compte n'a pas accès à l'administration" }, { status: 403 });
+    await setSession(data, { ...data.user, mfa: false });
+    return NextResponse.json({ user: data.user, next: data.user.emailVerified ? "/compte" : "/inscription?etape=code" });
   }
   // Compte de l'équipe sans double authentification : seule la page d'activation est accessible.
   await setSession(data, { ...data.user, mfa: false });

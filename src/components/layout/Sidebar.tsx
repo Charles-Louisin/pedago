@@ -10,22 +10,22 @@ import { ThemeToggle } from "./ThemeToggle";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 const SECTIONS = [
-  { title: "Vue d'ensemble", items: [{ href: "/", label: "Tableau de bord", icon: LayoutGrid }] },
+  { title: "Vue d'ensemble", items: [{ href: "/dashboard", label: "Tableau de bord", icon: LayoutGrid }] },
   {
     title: "Bibliothèque",
     items: [
-      { href: "/ressources", label: "Relecture & ressources", icon: BookOpenCheck },
-      { href: "/referentiel", label: "Référentiel", icon: GitBranch },
-      { href: "/sources", label: "Sources officielles", icon: FileSearch },
+      { href: "/dashboard/ressources", label: "Relecture & ressources", icon: BookOpenCheck },
+      { href: "/dashboard/referentiel", label: "Référentiel", icon: GitBranch },
+      { href: "/dashboard/sources", label: "Sources officielles", icon: FileSearch },
     ],
   },
-  { title: "Production", items: [{ href: "/ia", label: "Usine IA", icon: Sparkles }] },
+  { title: "Production", items: [{ href: "/dashboard/ia", label: "Usine IA", icon: Sparkles }] },
   {
     title: "Administration",
     admin: true,
     items: [
-      { href: "/calendrier", label: "Calendrier scolaire", icon: CalendarDays },
-      { href: "/utilisateurs", label: "Utilisateurs", icon: Users },
+      { href: "/dashboard/calendrier", label: "Calendrier scolaire", icon: CalendarDays },
+      { href: "/dashboard/utilisateurs", label: "Utilisateurs", icon: Users },
     ],
   },
 ];
@@ -45,7 +45,7 @@ function NavContent({ user, onNavigate }: { user: User; onNavigate?: () => void 
             <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-faint">{s.title}</p>
             <ul className="space-y-0.5">
               {s.items.map((it) => {
-                const active = it.href === "/" ? path === "/" : path.startsWith(it.href);
+                const active = it.href === "/dashboard" ? path === "/dashboard" : path.startsWith(it.href);
                 return (
                   <li key={it.href}>
                     <Link

@@ -1,8 +1,8 @@
 "use client";
 
 import { clsx } from "clsx";
-import { Search } from "lucide-react";
-import { useRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { Eye, EyeOff, Search } from "lucide-react";
+import { useId, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 
 type Tone = "default" | "green" | "ink" | "red";
 
@@ -60,14 +60,50 @@ export function BubbleSearch({ className, ...rest }: InputHTMLAttributes<HTMLInp
   );
 }
 
-export function BubbleField({ label, className, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+/**
+ * Champ de saisie : libellé, erreur sous le champ (annoncée, liée par aria-describedby), aide facultative.
+ * Mot de passe : bouton œil pour afficher / masquer la saisie.
+ */
+export function BubbleField({ label, className, error, hint, type, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label?: string; error?: string; hint?: ReactNode }) {
+  const [reveal, setReveal] = useState(false);
+  const id = useId();
+  const secret = type === "password";
   return (
-    <label className={clsx("block", className)}>
-      {label && <span className="mb-1.5 block text-[12px] font-medium text-muted">{label}</span>}
-      <span className="bubble-field flex h-11 items-center px-4">
-        <input aria-label={label ?? rest.placeholder} {...rest} className="w-full bg-transparent text-[14px] outline-none placeholder:text-faint" />
+    <div className={clsx("block", className)}>
+      <label htmlFor={id} className={clsx("mb-1.5 block text-[12px] font-medium text-muted", !label && "sr-only")}>
+        {label ?? rest.placeholder}
+      </label>
+      <span className={clsx("bubble-field flex h-11 items-center pl-4", secret ? "pr-1" : "pr-4", error && "!shadow-[0_0_0_1.5px_var(--red)]")}>
+        <input
+          id={id}
+          {...rest}
+          type={secret && reveal ? "text" : type}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error || hint ? `${id}-help` : undefined}
+          className="w-full bg-transparent text-[14px] outline-none placeholder:text-faint"
+        />
+        {secret && (
+          <button
+            type="button"
+            onClick={() => setReveal(!reveal)}
+            aria-label={reveal ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+            aria-pressed={reveal}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 hover:text-ink"
+          >
+            {reveal ? <EyeOff size={17} /> : <Eye size={17} />}
+          </button>
+        )}
       </span>
-    </label>
+      {error ? (
+        <p id={`${id}-help`} role="alert" className="mt-1.5 text-[12.5px] text-red">
+          {error}
+        </p>
+      ) : hint ? (
+        <div id={`${id}-help`} className="mt-1.5 text-[12.5px] text-muted">
+          {hint}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

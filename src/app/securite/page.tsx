@@ -26,7 +26,7 @@ export default function SecurityPage() {
       const res = await fetch("/api/mfa/setup", { method: "POST" });
       const data = await res.json().catch(() => ({}));
       if (res.status === 401) return void (window.location.href = "/connexion");
-      if (res.status === 409) return void (window.location.href = "/");
+      if (res.status === 409) return void (window.location.href = "/dashboard");
       if (!res.ok) return setError(data.message ?? "Activation impossible");
       setSetup(data);
       setQr(await QRCode.toDataURL(data.otpauthUrl, { margin: 1, width: 220, color: { dark: "#1D2420", light: "#FFFFFF" } }));
@@ -73,7 +73,7 @@ export default function SecurityPage() {
               >
                 <Copy size={16} /> {copied ? "Copiés" : "Copier"}
               </BubbleButton>
-              <BubbleButton tone="ink" type="button" className="flex-1" onClick={() => (window.location.href = "/")}>
+              <BubbleButton tone="ink" type="button" className="flex-1" onClick={() => (window.location.href = "/dashboard")}>
                 J’ai noté mes codes
               </BubbleButton>
             </div>

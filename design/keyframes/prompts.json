@@ -1,0 +1,32 @@
+{
+  "_note": "Prompts des images clés retenues (OpenRouter, google/gemini-3-pro-image, 16:9, 2K). Le clip du héros : google/veo-3.1-fast, 8 s, 1920×1080, sans son, images de début et de fin = hero-debut / hero-fin, prompt dans clip-heros.txt. Retouches locales : bouton « Imprimer cette fiche » et « Agrandir » corrigés à la main ; écran du téléphone regreffé sur les images 47 à 80 de la séquence.",
+  "A1v2-bureau": {
+    "model": "google/gemini-3-pro-image",
+    "refs": [
+      "ref-fiche-manuscrite.jpg"
+    ],
+    "prompt": "Photorealistic, bright and airy commercial photograph, 16:9. A light natural wooden teacher's desk in a clean, sunlit primary school classroom in Cameroon, mid-morning. Soft diffused daylight, high-key exposure, warm cream and off-white tones (walls painted cream, #F4F1EA), with deep green accents (#1F7A4D): a deep green ceramic mug, a deep green pencil, and the deep green chalkboard softly out of focus in the background. Camera slightly elevated, three-quarter view, locked-off, 50mm lens, shallow depth of field.\nCentered on the desk: the handwritten lesson preparation sheet from the reference image (French Seyès ruled paper, blue ink), lying flat and legible. Just to the right of the sheet: a modern black Android smartphone lying flat, face up, screen off. A small box of white chalk.\nKeep the sheet and the phone inside the central third of the frame width. Clean, minimal, premium product photography, soft natural shadows, gentle contrast, natural colors. No people, no hands, no text overlay, no watermark."
+  },
+  "A2v2-scan": {
+    "model": "google/gemini-3-pro-image",
+    "refs": [
+      "A1v2-bureau.png",
+      "fiche.jpg"
+    ],
+    "prompt": "Edit the first reference image. Keep exactly the same scene, camera, framing, bright lighting, colors and objects in the same places. Only change: the smartphone is no longer lying on the desk; it now floats upright in the air above the center of the handwritten sheet, about 15 cm above it, its screen facing the camera, slightly tilted back, with a soft shadow on the paper. The phone screen shows exactly the app screen from the second reference image, sharp and legible, including the black button reading \"Imprimer cette fiche\". A thin soft green light line (#1F7A4D) lies across the paper beneath the phone, like a scan. There must be only one phone in the image. Everything else stays identical. No people, no hands, no text overlay, no watermark."
+  },
+  "B1v2-manuscrite": {
+    "model": "google/gemini-3-pro-image",
+    "refs": [
+      "ref-fiche-manuscrite.jpg"
+    ],
+    "prompt": "Photorealistic product render, 16:9. The handwritten lesson preparation sheet from the reference image (French Seyès ruled notebook paper, blue ink handwriting, Cameroon flag circle at the top left, row of mangoes at the bottom) floats in mid-air in the center of the frame, flat, tilted back toward the camera by about 20 degrees, perfectly assembled, realistic paper texture, legible handwriting. Bright seamless studio background in warm cream (#F2EEE5) with a very soft radial gradient, soft diffused light from above, a soft natural shadow on the floor far below, a subtle deep green (#1F7A4D) rim light on the paper edges. Camera locked-off, centered, symmetrical. The sheet occupies the central third of the frame width. High-end commercial render, clean and minimal. No text overlay, no watermark."
+  },
+  "B1v3-manuscrite": {
+    "model": "google/gemini-3-pro-image",
+    "refs": [
+      "B1v2-manuscrite.png"
+    ],
+    "prompt": "Edit the reference image and keep it identical in every respect (camera, background, light, the single sheet's position and tilt, handwriting style, colors, the row of mangoes). Only correct the handwritten words so the sheet reads exactly, line by line: \"Fiche de préparation\" / \"École : EP Mvog-Ada\" / \"Classe : CP\" / \"Effectif : 58\" / \"Date : 24/11/2026\" / \"Discipline : Mathématiques\" / \"Objectif :\" / \"- Soustraire deux nombres inférieurs à 20\" / \"Matériel :\" / \"bâtonnets, ardoises, craie\" / \"Déroulement :\" / \"1. Rappel (5 min) : compter de 2 en 2\" / \"2. Situation problème (15 min) : Ali a 12 mangues,\" / \"il en donne 5. Combien lui en reste-t-il ?\" / \"3. Synthèse (10 min) : 12 - 5 = 7\" / \"Je retiens :\" / \"Soustraire, c'est enlever une quantité.\" / \"Exercice :\" / \"15 - 6 = ...    9 - 4 = ...\". No text overlay, no watermark."
+  }
+}

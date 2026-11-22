@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
  */
 const TILE_FINAL = [
   { x: 0, y: 0, r: 5, bg: "linear-gradient(135deg,#1f2226,#5b6068)", w: 17, h: 17 },
-  { x: 19, y: 0, r: 999, bg: "linear-gradient(135deg,#0b8a55,#34c759)", w: 17, h: 25 },
+  { x: 19, y: 0, r: 999, bg: "#1F7A4D", w: 17, h: 25 },
   { x: 0, y: 19, r: 5, bg: "linear-gradient(135deg,#3a3e44,#7a8088)", w: 17, h: 17 },
   { x: 19, y: 19, r: 5, bg: "linear-gradient(135deg,#9aa0a7,#c9cdd2)", w: 17, h: 17 },
 ];

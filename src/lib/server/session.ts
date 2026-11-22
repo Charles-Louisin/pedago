@@ -9,14 +9,14 @@ const MFA = "pedago_mfa";
 const secure = process.env.NODE_ENV === "production";
 
 /** mfa : session ouverte avec la double authentification (sinon, seule la page Sécurité est accessible). */
-export type SessionUser = { id: string; fullName: string; email: string | null; role: "teacher" | "reviewer" | "admin"; mfa?: boolean };
+export type SessionUser = { id: string; fullName: string; email: string | null; role: "teacher" | "reviewer" | "admin"; mfa?: boolean; emailVerified?: boolean };
 
 export async function setSession(tokens: { accessToken: string; refreshToken: string; expiresIn: number }, user?: SessionUser) {
   const jar = await cookies();
   const base = { httpOnly: true, sameSite: "lax" as const, secure, path: "/" };
   jar.set(ACCESS, tokens.accessToken, { ...base, maxAge: tokens.expiresIn });
   jar.set(REFRESH, tokens.refreshToken, { ...base, maxAge: 30 * 86_400 });
-  if (user) jar.set(USER, JSON.stringify({ id: user.id, fullName: user.fullName, email: user.email, role: user.role, mfa: Boolean(user.mfa) }), { ...base, maxAge: 30 * 86_400 });
+  if (user) jar.set(USER, JSON.stringify({ id: user.id, fullName: user.fullName, email: user.email, role: user.role, mfa: Boolean(user.mfa), emailVerified: Boolean(user.emailVerified) }), { ...base, maxAge: 30 * 86_400 });
 }
 
 export async function clearSession() {
