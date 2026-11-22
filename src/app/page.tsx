@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SiteIntro, SiteIntroLanding } from "@/components/brand/BrandLoader";
 import { Site } from "@/components/site/Site";
 import { DownloadCard } from "@/components/site/DownloadCard";
 import { getApk } from "@/lib/server/apk";
@@ -22,5 +23,11 @@ export const metadata: Metadata = {
 export default async function Home() {
   const [user, apk] = await Promise.all([getSessionUser(), Promise.resolve(getApk())]);
   const qr = await apkQr(apk);
-  return <Site user={user ? { fullName: user.fullName, role: user.role } : null} apkUrl={apk?.url ?? null} downloadCard={<DownloadCard apk={apk} qr={qr} />} />;
+  return (
+    <>
+      <SiteIntro />
+      <Site user={user ? { fullName: user.fullName, role: user.role } : null} apkUrl={apk?.url ?? null} downloadCard={<DownloadCard apk={apk} qr={qr} />} />
+      <SiteIntroLanding />
+    </>
+  );
 }

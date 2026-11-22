@@ -17,7 +17,8 @@ export function PedagoWordmark({ className }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className ?? ""}`}>
       <PedagoMark size={22} />
-      <span className="text-[15px] font-semibold tracking-[-0.02em]">pedago</span>
+      {/* Comme le logo de l'app : Plus Jakarta Sans 600, 0,74 × la taille du monogramme, approche -0,6 px. */}
+      <span className="[font-family:var(--font-jakarta),system-ui,sans-serif] text-[16.28px] font-semibold tracking-[-0.6px]">pedago</span>
     </span>
   );
 }

@@ -75,7 +75,8 @@ function Header({ user, apkUrl }: { user: SiteUser; apkUrl: string | null }) {
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
       <div className={`mx-auto flex h-16 max-w-6xl items-center gap-2 rounded-full pl-5 pr-2.5 transition-[background,box-shadow] duration-300 ${open ? "" : scrolled ? "site-glass" : ""}`}>
         <button type="button" onClick={() => go("#accueil")} aria-label="Haut de page" className="shrink-0">
-          <PedagoWordmark />
+          {/* Point d'atterrissage du logo de l'intro (SiteIntro). */}
+          <PedagoWordmark className="brand-target" />
         </button>
         <nav className="ml-6 hidden flex-1 items-center gap-1 lg:flex" aria-label="Sections">
           {NAV.map(([href, label]) => (
