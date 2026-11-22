@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   openGraph: {
     title: "PEDAGO — Prépare ta classe en une photo",
-    description: "L’assistant de classe des enseignants du primaire au Cameroun. Gratuit, hors connexion, francophone et anglophone.",
+    description: "L’assistant de classe des enseignants du primaire au Cameroun. Francophone et anglophone.",
     images: [{ url: "/site/screens/fiche-a4.jpg", width: 1280, height: 1810 }],
     locale: "fr_FR",
     type: "website",

@@ -36,9 +36,6 @@ export function Hero({ apkUrl }: { apkUrl: string | null }) {
               Voir comment <ArrowRight size={17} />
             </button>
           </div>
-          <p className="site-enter mt-7 text-[14px] text-[#5c5c5c]" style={{ ["--d" as string]: ".24s" }}>
-            Gratuit · Fonctionne hors connexion · Français et English
-          </p>
         </div>
 
         <div className="site-enter" style={{ ["--d" as string]: ".12s", ["--y" as string]: "32px" }}>
