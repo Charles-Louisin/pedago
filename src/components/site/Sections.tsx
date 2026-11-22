@@ -6,7 +6,7 @@ import { ArrowRight, BookOpenCheck, Camera, ChevronLeft, ChevronRight, CloudOff,
 import { HeroVideo } from "./HeroVideo";
 import { D, Device, DownloadButton, EASE, H2, PRIMARY, Reveal, SECONDARY, scrollToAnchor } from "./ui";
 
-/** Largeur des téléphones : jamais plus haut que l'écran, sur ordinateur comme sur téléphone. */
+/** Largeur des captures de l'app : jamais plus hautes que l'écran, sur ordinateur comme sur téléphone. */
 const PHONE = "w-[min(72vw,280px,calc((100svh-190px)*0.46))]";
 
 const desktopQuery = "(min-width: 1024px)";
@@ -60,7 +60,7 @@ function StepPhone({ i }: { i: number }) {
   const s = STEPS[i];
   return (
     <Device>
-      <div className="relative aspect-[390/844] bg-[#111]">
+      <div className="relative aspect-[390/844] bg-white">
         <AnimatePresence initial={false}>
           <motion.img
             key={s.screen}

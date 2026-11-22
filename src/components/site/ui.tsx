@@ -26,6 +26,7 @@ export function Reveal({ children, delay = 0, className, y = 18 }: { children: R
   );
 }
 
+/** Capture d'écran de l'app : image aux bords légèrement arrondis (voir .site-device). */
 export function Device({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={`site-device ${className ?? ""}`}>{children}</div>;
 }
