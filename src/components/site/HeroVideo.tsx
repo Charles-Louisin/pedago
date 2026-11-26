@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { Maximize, Minimize, Pause, Play, Volume1, Volume2, VolumeX } from "lucide-react";
+import type { SiteMedia } from "@/lib/server/site-media";
 
 type FsDoc = Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
 type FsEl = HTMLElement & { webkitRequestFullscreen?: () => void };
@@ -12,10 +13,6 @@ const fmt = (s: number) => {
   return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`;
 };
 
-/** La pub de 60 s : 720p pour les petits écrans, 1080p au-delà ; WebM d'abord, MP4 pour Safari / iPhone. */
-const POSTER = "/site/pub.webp";
-const SMALL = "(max-width: 900px)";
-const DURATION = 60;
 const HIDE_AFTER_MS = 3000;
 
 const noSubscribe = () => () => undefined;
@@ -40,7 +37,10 @@ const subscribeCoarse = (cb: () => void) => {
  *   Le lecteur vit dans un « hôte » rendu par portail : on déplace cet hôte (sans recréer la vidéo, donc sans
  *   couper la lecture) entre sa place dans la page et la page noire, hors des parents animés (transform).
  */
-export function HeroVideo() {
+/** Vidéos et affiche sur UploadThing (adresses en base) : 720p pour les petits écrans, 1080p au-delà ; WebM d'abord, MP4 pour Safari / iPhone. */
+export function HeroVideo({ media }: { media: SiteMedia }) {
+  const POSTER = media.poster;
+  const DURATION = media.durationSec;
   const slot = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -313,10 +313,9 @@ export function HeroVideo() {
         onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
         onSeeked={paint}
       >
-        <source src="/site/pub-720.webm" type="video/webm" media={SMALL} />
-        <source src="/site/pub-720.mp4" type="video/mp4" media={SMALL} />
-        <source src="/site/pub.webm" type="video/webm" />
-        <source src="/site/pub.mp4" type="video/mp4" />
+        {media.sources.map((s) => (
+          <source key={s.url} src={s.url} type={s.type} media={s.maxWidth ? `(max-width: ${s.maxWidth}px)` : undefined} />
+        ))}
       </video>
 
       {!started && (

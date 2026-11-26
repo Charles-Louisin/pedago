@@ -8,6 +8,8 @@ const csp = [
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.ufs.sh https://utfs.io",
+  // Film du site : vidéos servies par UploadThing.
+  "media-src 'self' https://*.ufs.sh https://utfs.io",
   "font-src 'self' data:",
   "connect-src 'self'" + (isDev ? " ws: http://localhost:*" : ""),
   "frame-ancestors 'none'",
@@ -34,11 +36,6 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "no-referrer" },
         ],
-      },
-      {
-        // Pub du site (vidéos et affiche) : gardée 7 jours en cache, rafraîchie en arrière-plan ensuite.
-        source: "/site/:file(pub[^/]*)",
-        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
       },
       {
         source: "/((?!api/proxy/).*)",

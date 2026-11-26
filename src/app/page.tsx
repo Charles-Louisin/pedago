@@ -3,6 +3,7 @@ import { SiteIntro, SiteIntroLanding } from "@/components/brand/BrandLoader";
 import { Site } from "@/components/site/Site";
 import { DownloadCard } from "@/components/site/DownloadCard";
 import { getApk } from "@/lib/server/apk";
+import { getSiteMedia } from "@/lib/server/site-media";
 import { apkQr } from "@/lib/server/qr";
 import { getSessionUser } from "@/lib/server/session";
 
@@ -21,12 +22,12 @@ export const metadata: Metadata = {
 
 /** Site public : présentation, démonstrations, téléchargement de l'app ; bouton vers l'espace de chacun. */
 export default async function Home() {
-  const [user, apk] = await Promise.all([getSessionUser(), Promise.resolve(getApk())]);
+  const [user, apk, film] = await Promise.all([getSessionUser(), Promise.resolve(getApk()), getSiteMedia("film")]);
   const qr = await apkQr(apk);
   return (
     <>
       <SiteIntro />
-      <Site user={user ? { fullName: user.fullName, role: user.role } : null} apkUrl={apk?.url ?? null} downloadCard={<DownloadCard apk={apk} qr={qr} />} />
+      <Site user={user ? { fullName: user.fullName, role: user.role } : null} apkUrl={apk?.url ?? null} downloadCard={<DownloadCard apk={apk} qr={qr} />} film={film} />
       <SiteIntroLanding />
     </>
   );

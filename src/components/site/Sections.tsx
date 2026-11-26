@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } fr
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowDown, BookOpen, CalendarCheck, CloudDownload, FileText, ImagePlus, Play, Sparkles, Sun } from "lucide-react";
 import { HeroVideo } from "./HeroVideo";
+import type { SiteMedia } from "@/lib/server/site-media";
 import { D, Device, DownloadButton, EASE, H2, PRIMARY, Reveal, scrollToAnchor } from "./ui";
 
 /** Largeur des captures de l'app : jamais plus hautes que l'écran, sur ordinateur comme sur téléphone. */
@@ -197,7 +198,7 @@ export function Why() {
 
 /* ───────────────────────── Le film : il grandit au défilement ───────────────────────── */
 
-export function Film() {
+export function Film({ media }: { media: SiteMedia }) {
   const desktop = useDesktop();
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
@@ -208,7 +209,7 @@ export function Film() {
     return (
       <section id="film" ref={ref} className="relative z-10 px-5 py-12">
         <Reveal>
-          <HeroVideo />
+          <HeroVideo media={media} />
         </Reveal>
       </section>
     );
@@ -217,7 +218,7 @@ export function Film() {
     <section id="film" ref={ref} className="relative z-10 h-[150svh]">
       <div className="sticky top-0 flex h-svh flex-col items-center justify-center overflow-hidden px-5">
         <motion.div style={{ scale, borderRadius: radius }} className="relative w-[min(1280px,94vw,calc((100svh-90px)*16/9))] origin-center overflow-hidden will-change-transform">
-          <HeroVideo />
+          <HeroVideo media={media} />
         </motion.div>
       </div>
     </section>

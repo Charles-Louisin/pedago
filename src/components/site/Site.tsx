@@ -8,6 +8,7 @@ import { PedagoMark, PedagoWordmark } from "@/components/brand/PedagoMark";
 import { Caption, CardFan, Lightbox, wrap } from "./CardFan";
 import { Features, Film, Hero, HowItWorks, Why } from "./Sections";
 import { D, DownloadButton, EASE, H2, Reveal, scrollToAnchor, type SiteUser } from "./ui";
+import type { SiteMedia } from "@/lib/server/site-media";
 
 const FAQ = [
   [
@@ -372,14 +373,14 @@ function ScrollTop() {
   );
 }
 
-export function Site({ user, apkUrl, downloadCard }: { user: SiteUser; apkUrl: string | null; downloadCard: ReactNode }) {
+export function Site({ user, apkUrl, downloadCard, film }: { user: SiteUser; apkUrl: string | null; downloadCard: ReactNode; film: SiteMedia | null }) {
   return (
     <div className="site relative">
             <Header user={user} apkUrl={apkUrl} />
       <main>
         <Hero apkUrl={apkUrl} />
         <Why />
-        <Film />
+        {film && <Film media={film} />}
         <HowItWorks />
         <Features apkUrl={apkUrl} />
         <DownloadSection card={downloadCard} user={user} />
