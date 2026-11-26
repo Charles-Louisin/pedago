@@ -16,12 +16,15 @@ const KIND_LABELS: Record<string, string> = {
   generate_resource: "Générer une ressource",
   extract_source: "Extraire un programme",
   review_resource: "Relecture IA",
+  teacher_import: "Import d'une fiche (enseignant)",
+  research_sources: "Recherche de sources",
+  program_import: "Import d'un programme (enseignant)",
 };
 
 export default function AiFactory() {
   const qc = useQueryClient();
   const [classLevel, setClassLevel] = useState("CP");
-  const [subjectCode, setSubjectCode] = useState("MATH");
+  const [subjectCode, setSubjectCode] = useState("");
   const [types, setTypes] = useState<string[]>(["lesson_plan", "exercises", "assessment"]);
   const [budget, setBudget] = useState(50);
 
@@ -41,7 +44,7 @@ export default function AiFactory() {
     mutationFn: () =>
       api("admin/ai/jobs", {
         method: "POST",
-        body: { kind: "build_library", params: { classLevel, subjectCode, types, difficulties: ["standard"], perJobBudgetUsd: budget / 100 } },
+        body: { kind: "build_library", params: { classLevel, ...(subjectCode ? { subjectCode } : {}), types, difficulties: ["standard"], perJobBudgetUsd: budget / 100 } },
       }),
     onSuccess: () => {
       toast.success("Production lancée : une tâche par leçon validée et par type");
@@ -62,13 +65,14 @@ export default function AiFactory() {
       <PageHeader eyebrow="Production" title="Usine IA" description="Les ressources sont générées une seule fois, contrôlées par un second modèle puis envoyées en relecture humaine. Rien n'est publié automatiquement." />
 
       <section className="card relative mb-5 overflow-hidden p-7">
-        <div className="flex flex-wrap items-center gap-8">
+        <div className="flex flex-wrap items-center gap-6 sm:gap-8">
           <StatusIcon size={64} state={!aiReady ? "error" : active ? "busy" : "idle"} />
           <div className="grid flex-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Select label="Classe" value={classLevel} onChange={(e) => setClassLevel(e.target.value)}>
               {CLASS_LEVELS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </Select>
             <Select label="Matière" value={subjectCode} onChange={(e) => setSubjectCode(e.target.value)}>
+              <option value="">Toutes les matières</option>
               {subjects.data?.filter((s) => s.subsystem === subsystem).map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </Select>
             <div className="sm:col-span-2">
@@ -96,14 +100,14 @@ export default function AiFactory() {
         <p className="mt-5 text-[12.5px] text-muted">Seules les leçons au statut « validée » du référentiel sont utilisées. Une ressource déjà existante n’est jamais régénérée (aucune dépense).</p>
       </section>
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_420px]">
-        <section>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <section className="min-w-0">
           <h2 className="mb-3 text-[15px] font-semibold">Tâches</h2>
           {jobs.isLoading ? <Skeleton className="h-64" /> : !jobs.data?.items.length ? <Empty title="Aucune tâche">Lance une production ci-dessus.</Empty> : (
             <ul className="card divide-y divide-[var(--line)]">
               {jobs.data.items.map((j) => (
-                <li key={j._id} className="flex items-center gap-4 px-5 py-3.5">
-                  <div className="min-w-0 flex-1">
+                <li key={j._id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
+                  <div className="min-w-0 flex-1 basis-56">
                     <p className="text-[14px] font-medium">{KIND_LABELS[j.kind]} <span className="text-muted">· {j.params.classLevel ? classLabel(String(j.params.classLevel)) : TYPE_LABELS[String(j.params.type)] ?? ""}</span></p>
                     <div className="mt-1.5 flex gap-1">
                       {j.steps.map((s) => (
@@ -112,7 +116,7 @@ export default function AiFactory() {
                     </div>
                     {j.lastError && j.status !== "done" && <p className="mt-1 truncate text-[12px] text-red">{j.lastError}</p>}
                   </div>
-                  <span className="w-24 text-right text-[12.5px] tabular-nums text-muted">{j.spentUsd.toFixed(3)} / {j.budgetUsd} $</span>
+                  <span className="text-right text-[12.5px] tabular-nums text-muted">{j.spentUsd.toFixed(3)} / {j.budgetUsd} $</span>
                   <Pill status={j.status}>{JOB_STATUS[j.status]}</Pill>
                   {["queued", "running"].includes(j.status) && <BubbleButton size="sm" onClick={() => act.mutate({ id: j._id, action: "cancel" })} aria-label="Annuler"><Square size={13} /></BubbleButton>}
                   {["failed", "budget_exceeded", "cancelled"].includes(j.status) && <BubbleButton size="sm" onClick={() => act.mutate({ id: j._id, action: "retry" })} aria-label="Reprendre"><RotateCcw size={13} /></BubbleButton>}
@@ -121,17 +125,17 @@ export default function AiFactory() {
             </ul>
           )}
         </section>
-        <section>
+        <section className="min-w-0">
           <h2 className="mb-3 text-[15px] font-semibold">Consommation par modèle</h2>
-          <div className="card overflow-hidden">
-            <table className="w-full text-[12.5px]">
+          <div className="card overflow-x-auto">
+            <table className="w-full min-w-[360px] text-[12.5px]">
               <thead className="bg-[var(--surface-2)] text-left text-muted">
                 <tr><th className="px-4 py-2.5 font-medium">Modèle / étape</th><th className="px-2 font-medium">Appels</th><th className="px-2 font-medium">Cache</th><th className="px-4 text-right font-medium">Coût</th></tr>
               </thead>
               <tbody className="divide-y divide-[var(--line)]">
                 {usage.data?.length ? usage.data.map((u) => (
                   <tr key={u.model + u.step}>
-                    <td className="px-4 py-2.5"><p className="font-medium">{u.model}</p><p className="text-muted">{u.step} · {u.avgLatencyMs} ms{u.failures ? ` · ${u.failures} échec(s)` : ""}</p></td>
+                    <td className="max-w-[220px] px-4 py-2.5"><p className="break-all font-medium">{u.model}</p><p className="text-muted">{u.step} · {u.avgLatencyMs} ms{u.failures ? ` · ${u.failures} échec(s)` : ""}</p></td>
                     <td className="px-2 tabular-nums">{u.calls}</td>
                     <td className="px-2 tabular-nums">{u.tokensIn ? Math.round((u.cachedTokens / u.tokensIn) * 100) : 0}%</td>
                     <td className="px-4 text-right font-semibold tabular-nums">{u.costUsd.toFixed(3)} $</td>

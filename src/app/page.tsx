@@ -7,13 +7,13 @@ import { apkQr } from "@/lib/server/qr";
 import { getSessionUser } from "@/lib/server/session";
 
 export const metadata: Metadata = {
-  title: "PEDAGO — Prépare ta classe en une photo",
-  description: "Photographie ta fiche : PEDAGO la recopie à l’identique, l’adapte au niveau de ta classe, l’imprime et tient ton programme à jour, même sans connexion. Gratuit pour les enseignants du primaire au Cameroun.",
+  title: "PEDAGO — Ta classe prête chaque matin",
+  description: "La leçon du moment, sa fiche prête à imprimer et ton bilan en un geste, même sans réseau. Pour les enseignants du primaire au Cameroun, francophone et anglophone.",
   robots: { index: true, follow: true },
   openGraph: {
-    title: "PEDAGO — Prépare ta classe en une photo",
+    title: "PEDAGO — Ta classe prête chaque matin",
     description: "L’assistant de classe des enseignants du primaire au Cameroun. Francophone et anglophone.",
-    images: [{ url: "/site/screens/fiche-a4.jpg", width: 1280, height: 1810 }],
+    images: [{ url: "/site/photos/enseignante.jpg", width: 2400, height: 3600 }],
     locale: "fr_FR",
     type: "website",
   },

@@ -12,7 +12,7 @@ type U = { _id: string; fullName: string; email?: string; phone?: string; role: 
 type Patch = { role?: string; disabled?: boolean; resetMfa?: true };
 type Pending = { user: U; title: string; message: string; confirm: string; danger?: boolean; body: Patch; done: string } | null;
 
-const ROLE: Record<string, string> = { teacher: "Enseignant", reviewer: "Relecteur", admin: "Administrateur" };
+const ROLE: Record<string, string> = { teacher: "Enseignant", admin: "Administrateur" };
 
 export default function UsersPage() {
   const qc = useQueryClient();
@@ -31,18 +31,18 @@ export default function UsersPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Administration" title="Utilisateurs" description="Tout nouveau compte est un utilisateur (enseignant). Toi seul attribues un rôle d’équipe : relecteur (validation) ou administrateur (publication, IA, tableau de bord)." />
+      <PageHeader eyebrow="Administration" title="Utilisateurs" description="Tout nouveau compte est un utilisateur (enseignant). Toi seul nommes un administrateur : il relit, valide et publie les contenus, pilote l’IA et le tableau de bord." />
 
       {isLoading ? (
         <Skeleton className="h-80" />
       ) : (
         <ul className="card divide-y divide-[var(--line)]">
           {data?.items.map((u) => (
-            <li key={u._id} className="flex flex-wrap items-center gap-4 px-5 py-3.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink/[.06] text-[13px] font-semibold">{u.fullName.slice(0, 1)}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-medium">{u.fullName}</p>
-                <p className="text-[12.5px] text-muted">
+            <li key={u._id} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-3.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink/[.06] text-[13px] font-semibold">{u.fullName.slice(0, 1)}</span>
+              <div className="min-w-0 flex-1 basis-48">
+                <p className="truncate text-[14px] font-medium">{u.fullName}</p>
+                <p className="truncate text-[12.5px] text-muted" title={u.email ?? u.phone ?? ""}>
                   {u.email ?? u.phone}
                   {u.lastLoginAt ? ` · vu le ${new Date(u.lastLoginAt).toLocaleDateString("fr-FR")}` : ""}
                 </p>
@@ -57,7 +57,6 @@ export default function UsersPage() {
                 aria-label={`Rôle de ${u.fullName}`}
               >
                 <option value="teacher">Enseignant</option>
-                <option value="reviewer">Relecteur</option>
                 <option value="admin">Administrateur</option>
               </select>
               {u.role !== "teacher" && (

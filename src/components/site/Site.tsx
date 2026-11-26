@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowRight, ArrowUp, Menu, Plus, ShieldCheck, Smartphone, X } from "lucide-react";
+import { ArrowRight, ArrowUp, ChevronLeft, ChevronRight, Maximize2, Menu, Plus, ShieldCheck, Smartphone, X } from "lucide-react";
 import { PedagoMark, PedagoWordmark } from "@/components/brand/PedagoMark";
-import { Benefits, Compare, Gallery, Hero, HowItWorks } from "./Sections";
+import { Caption, CardFan, Lightbox, wrap } from "./CardFan";
+import { Features, Film, Hero, HowItWorks, Why } from "./Sections";
 import { D, DownloadButton, EASE, H2, Reveal, scrollToAnchor, type SiteUser } from "./ui";
 
 const FAQ = [
-  ["Est-ce vraiment gratuit ?", "Oui. PEDAGO est gratuit pour les enseignants : ni abonnement, ni publicité."],
   [
     "Installer un APK, c’est sûr ?",
     "Oui : c’est le fichier de l’application, signé par PEDAGO, le même que celui destiné au Play Store (publication en préparation). Android te demande une seule autorisation, pour ton navigateur.",
@@ -24,8 +24,9 @@ const FAQ = [
 ] as const;
 
 const NAV = [
+  ["#pourquoi", "Pourquoi PEDAGO"],
   ["#histoire", "Comment ça marche"],
-  ["#avant-apres", "Avant · après"],
+  ["#film", "Le film"],
   ["#ecrans", "Écrans"],
   ["#questions", "Questions"],
 ] as const;
@@ -63,31 +64,31 @@ function Header({ user, apkUrl }: { user: SiteUser; apkUrl: string | null }) {
     requestAnimationFrame(() => scrollToAnchor(href));
   };
   const account = user ? (
-    <Link href={user.role === "teacher" ? "/compte" : "/dashboard"} className="inline-flex h-11 items-center gap-2 rounded-full px-4 text-[14px] font-semibold text-[#171717] hover:bg-black/5">
+    <Link href={user.role === "teacher" ? "/compte" : "/dashboard"} className="inline-flex h-11 items-center gap-2 rounded-[12px] px-4 text-[15px] font-bold text-[#1A8A4C] hover:bg-[#E3F2E9]">
       {user.role === "teacher" ? "Mon espace" : "Tableau de bord"}
     </Link>
   ) : (
-    <Link href="/connexion" className="inline-flex h-11 items-center rounded-full px-4 text-[14px] font-semibold text-[#171717] hover:bg-black/5">
+    <Link href="/connexion" className="inline-flex h-11 items-center rounded-[12px] px-4 text-[15px] font-bold text-[#1A8A4C] hover:bg-[#E3F2E9]">
       Se connecter
     </Link>
   );
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
-      <div className={`mx-auto flex h-16 max-w-6xl items-center gap-2 rounded-full pl-5 pr-2.5 transition-[background,box-shadow] duration-300 ${open ? "" : scrolled ? "site-glass" : ""}`}>
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-2.5 sm:px-5">
+      <div className={`mx-auto flex h-16 max-w-[1400px] items-center gap-2 rounded-[20px] pl-4 pr-2 transition-[background,box-shadow] duration-300 ${open ? "" : scrolled ? "site-glass" : ""}`}>
         <button type="button" onClick={() => go("#accueil")} aria-label="Haut de page" className="shrink-0">
           {/* Point d'atterrissage du logo de l'intro (SiteIntro). */}
-          <PedagoWordmark className="brand-target" />
+          <PedagoWordmark className="brand-target scale-[1.15] origin-left" />
         </button>
         <nav className="ml-6 hidden flex-1 items-center gap-1 lg:flex" aria-label="Sections">
           {NAV.map(([href, label]) => (
-            <button key={href} type="button" onClick={() => go(href)} className="rounded-full px-3.5 py-2 text-[14px] font-medium text-[#3d3d3d] transition-colors hover:bg-black/5 hover:text-[#171717]">
+            <button key={href} type="button" onClick={() => go(href)} className="rounded-[12px] px-3.5 py-2 text-[15px] font-semibold text-[#4A423B] transition-colors hover:bg-[#F7F5F1] hover:text-[#151515]">
               {label}
             </button>
           ))}
         </nav>
         <div className="ml-auto hidden items-center gap-1 sm:flex">
           {account}
-          <DownloadButton apkUrl={apkUrl} label="Télécharger" className="inline-flex h-11 items-center gap-2 rounded-full bg-[#171717] px-5 text-[14px] font-semibold text-white" />
+          <DownloadButton apkUrl={apkUrl} label="Télécharger" className="inline-flex h-12 items-center gap-2 rounded-[14px] bg-[#1A8A4C] px-5 text-[15px] font-bold text-white shadow-[0_10px_24px_-12px_rgba(26,138,76,.8)] transition-[background-color,transform] duration-300 hover:-translate-y-px hover:bg-[#157A43]" />
         </div>
         <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="menu-mobile" aria-label={open ? "Fermer le menu" : "Ouvrir le menu"} className="ml-auto grid h-11 w-11 place-items-center rounded-full hover:bg-black/5 sm:ml-1 lg:hidden">
           {open ? <X size={20} /> : <Menu size={20} />}
@@ -101,7 +102,7 @@ function Header({ user, apkUrl }: { user: SiteUser; apkUrl: string | null }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: D.quick, ease: EASE }}
-            className="fixed inset-0 -z-10 flex flex-col overflow-y-auto overscroll-contain bg-[#fafaf7] px-5 pb-8 pt-24 sm:px-8 lg:hidden"
+            className="fixed inset-0 -z-10 flex flex-col overflow-y-auto overscroll-contain bg-white px-5 pb-8 pt-24 sm:px-8 lg:hidden"
           >
             <nav aria-label="Menu" className="flex flex-col">
               {NAV.map(([href, label], i) => (
@@ -115,13 +116,13 @@ function Header({ user, apkUrl }: { user: SiteUser; apkUrl: string | null }) {
                   className="flex items-center justify-between border-b border-black/[0.08] py-5 text-left text-[26px] font-semibold tracking-[-0.025em] text-[#171717]"
                 >
                   {label}
-                  <ArrowRight size={20} className="text-[#1F7A4D]" />
+                  <ArrowRight size={20} className="text-[#1A8A4C]" />
                 </motion.button>
               ))}
             </nav>
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: D.base, ease: EASE, delay: 0.22 }} className="mt-auto flex flex-col gap-3 pt-10">
               <div onClick={() => setOpen(false)}>
-                <DownloadButton apkUrl={apkUrl} label="Télécharger l’app" className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#171717] px-5 text-[16px] font-semibold text-white" />
+                <DownloadButton apkUrl={apkUrl} label="Télécharger l’app" className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#1A8A4C] px-5 text-[16px] font-bold text-white" />
               </div>
               <div className="flex gap-3">
                 {user ? (
@@ -169,10 +170,10 @@ function DownloadSection({ card, user }: { card: ReactNode; user: SiteUser }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-10% 0px" }}
               transition={{ duration: D.slow, ease: EASE, delay: i * 0.07 }}
-              className="border-t-2 border-[#171717] pt-5"
+              className="border-t-2 border-[#1A8A4C] pt-5"
             >
               <h3 className="text-[17px] font-semibold">
-                <span className="mr-2 tabular-nums text-[#1F7A4D]">{i + 1}.</span>
+                <span className="mr-2 tabular-nums text-[#1A8A4C]">{i + 1}.</span>
                 {t}
               </h3>
               <p className="mt-2 text-[14px] leading-relaxed text-[#5c5c5c]">{d}</p>
@@ -184,7 +185,7 @@ function DownloadSection({ card, user }: { card: ReactNode; user: SiteUser }) {
             <Smartphone size={16} /> Android 7 ou plus récent · environ 60 Mo libres
           </span>
           <span className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-[#1F7A4D]" /> Export et suppression de tes données à tout moment
+            <ShieldCheck size={16} className="text-[#1A8A4C]" /> Export et suppression de tes données à tout moment
           </span>
           {!user && (
             <Link href="/inscription" className="font-semibold text-[#171717] underline-offset-4 hover:underline">
@@ -200,10 +201,10 @@ function DownloadSection({ card, user }: { card: ReactNode; user: SiteUser }) {
 function Faq() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="questions" className="relative z-10 bg-white py-24">
+    <section id="questions" className="relative z-10 py-24">
       <div className="mx-auto max-w-3xl px-5">
         <Reveal>
-          <h2 className="text-[34px] font-semibold leading-[1.04] tracking-[-0.035em] sm:text-[46px]">Questions fréquentes</h2>
+          <h2 className={H2}>Questions fréquentes</h2>
         </Reveal>
         <div className="mt-10 divide-y divide-black/[0.08] border-y border-black/[0.08]">
           {FAQ.map(([q, a], i) => {
@@ -213,7 +214,7 @@ function Faq() {
                 <h3>
                   <button type="button" onClick={() => setOpen(on ? null : i)} aria-expanded={on} className="flex w-full items-center justify-between gap-4 py-5 text-left text-[16.5px] font-semibold">
                     {q}
-                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full transition-all duration-300 ${on ? "rotate-45 bg-[#1F7A4D] text-white" : "bg-black/5"}`} aria-hidden>
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full transition-all duration-300 ${on ? "rotate-45 bg-[#1A8A4C] text-white" : "bg-[#F7F5F1]"}`} aria-hidden>
                       <Plus size={16} />
                     </span>
                   </button>
@@ -234,72 +235,101 @@ function Faq() {
   );
 }
 
-function FinalCta({ user, apkUrl }: { user: SiteUser; apkUrl: string | null }) {
-  return (
-    <section id="rejoindre" className="relative z-10 overflow-hidden bg-[#171717] py-28 text-white">
-      <div aria-hidden className="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-[#1F7A4D] opacity-40 blur-[120px]" />
-      <div className="relative mx-auto max-w-6xl px-5">
-        <Reveal>
-          <span className="grid h-16 w-16 place-items-center rounded-[18px] bg-white shadow-[0_12px_30px_-12px_rgba(0,0,0,.5)]">
-            <PedagoMark size={40} />
-          </span>
-          <h2 className="mt-6 max-w-3xl text-[40px] font-semibold leading-[1] tracking-[-0.04em] text-white sm:text-[64px]">Prêt pour demain matin ?</h2>
-          <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-white/70">Télécharge PEDAGO, photographie ta prochaine fiche, et vois-la revenir prête à imprimer.</p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <DownloadButton apkUrl={apkUrl} className="inline-flex h-14 items-center gap-2.5 rounded-full bg-white px-7 text-[16px] font-semibold text-[#171717] transition-transform duration-300 hover:-translate-y-0.5" />
-            {!user && (
-              <Link href="/inscription" className="inline-flex h-14 items-center gap-2 rounded-full px-7 text-[16px] font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,.25)] transition-colors hover:bg-white/10">
-                Créer un compte <ArrowRight size={17} />
-              </Link>
-            )}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
+const FOOT_NAV = [
+  ["#accueil", "Accueil"],
+  ["#histoire", "Comment ça marche"],
+  ["#film", "Le film"],
+  ["#telecharger", "Télécharger"],
+  ["#questions", "Questions"],
+] as const;
 
-function Footer({ user }: { user: SiteUser }) {
+/** Pied de page : deux grands mots, l'éventail des vrais écrans de l'app entre les deux, puis l'appel au téléchargement. */
+function Footer({ user, apkUrl }: { user: SiteUser; apkUrl: string | null }) {
+  const [active, setActive] = useState(0);
+  const [zoom, setZoom] = useState<number | null>(null);
+  const reduce = useReducedMotion();
+  const word = (from: number) => ({
+    initial: { opacity: 0, x: reduce ? 0 : from },
+    whileInView: { opacity: 1, x: 0 },
+    viewport: { once: true, margin: "-10% 0px" },
+    transition: { duration: 1.1, ease: EASE },
+  });
   return (
-    <footer className="relative z-10">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-[1.4fr_1fr_1fr]">
-        <div>
-          <PedagoWordmark />
-          <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-[#5c5c5c]">L’assistant de classe des enseignants du primaire au Cameroun.</p>
+    <footer id="ecrans" className="relative z-10 mt-10 overflow-hidden bg-[#151515] text-white">
+      <div className="mx-auto max-w-[1400px] px-5 pb-10 pt-20 sm:px-10 sm:pt-28">
+        <div
+          className="relative flex flex-col sm:h-[var(--fan-h)] sm:flex-row sm:items-center sm:justify-between [--card:clamp(112px,15vw,214px)] [--fan-h:calc(var(--card)*2.45)] [--spread:clamp(20px,3.1vw,46px)]"
+          aria-label="Écrans de l’app PEDAGO"
+        >
+          <div className="flex items-end justify-between sm:contents">
+          <motion.span {...word(-120)} aria-hidden className="font-display relative z-0 select-none text-[clamp(44px,12.4vw,184px)] sm:text-[clamp(54px,11.5vw,184px)] font-extrabold uppercase leading-[0.8] tracking-[-0.02em] text-[#2BB36A] [font-variation-settings:'wdth'_75]">
+            Classe
+          </motion.span>
+          <motion.span {...word(120)} aria-hidden className="font-display relative z-0 select-none text-[clamp(44px,12.4vw,184px)] sm:text-[clamp(54px,11.5vw,184px)] font-extrabold uppercase leading-[0.8] tracking-[-0.02em] text-white [font-variation-settings:'wdth'_75]">
+            Prête
+          </motion.span>
+          </div>
+          <div className="relative z-10 -mt-4 h-[var(--fan-h)] sm:absolute sm:inset-0 sm:mt-0 sm:h-auto">
+            <CardFan active={active} setActive={setActive} onOpen={setZoom} />
+          </div>
         </div>
-        <nav aria-label="Pied de page" className="flex flex-col gap-2.5 text-[14px]">
-          {[
-            ["#histoire", "Comment ça marche"],
-            ["#avant-apres", "Avant · après"],
-            ["#telecharger", "Télécharger l’app"],
-            ["#questions", "Questions fréquentes"],
-          ].map(([h, l]) => (
-            <button key={h} type="button" onClick={() => scrollToAnchor(h)} className="w-fit text-left text-[#3d3d3d] hover:text-[#171717]">
+        <Caption index={active} className="mt-6" />
+        <div className="mt-4 flex justify-center gap-2">
+          <button type="button" onClick={() => setActive(wrap(active - 1))} aria-label="Écran précédent" className="grid h-11 w-11 place-items-center rounded-full ring-1 ring-white/20 transition-colors hover:bg-white/10">
+            <ChevronLeft size={19} />
+          </button>
+          <button type="button" onClick={() => setZoom(active)} className="inline-flex h-11 items-center gap-2 rounded-full px-5 text-[14px] font-semibold ring-1 ring-white/20 transition-colors hover:bg-white/10">
+            <Maximize2 size={15} /> Agrandir
+          </button>
+          <button type="button" onClick={() => setActive(wrap(active + 1))} aria-label="Écran suivant" className="grid h-11 w-11 place-items-center rounded-full ring-1 ring-white/20 transition-colors hover:bg-white/10">
+            <ChevronRight size={19} />
+          </button>
+        </div>
+
+        <div className="mt-20 flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-[46ch] text-[13.5px] font-medium uppercase leading-[1.7] tracking-[0.02em] text-white/75">
+            Tes leçons, tes fiches et ton bilan dans ta poche. Prêts chaque matin, même sans réseau.
+          </p>
+          <DownloadButton
+            apkUrl={apkUrl}
+            label="Télécharger PEDAGO"
+            className="inline-flex h-14 w-full items-center justify-center gap-2.5 rounded-full bg-white/[0.04] px-7 text-[15px] font-semibold text-white ring-1 ring-white/25 transition-[background-color,box-shadow] duration-300 hover:bg-[#1A8A4C] hover:ring-[#1A8A4C] sm:w-[min(420px,40vw)]"
+          />
+        </div>
+        <div className="mt-10 border-t border-dashed border-white/20" />
+        <nav aria-label="Pied de page" className="mt-8 flex flex-wrap justify-between gap-x-6 gap-y-4">
+          {FOOT_NAV.map(([h, l]) => (
+            <button key={h} type="button" onClick={() => scrollToAnchor(h)} className="text-[14px] font-medium uppercase tracking-[0.04em] text-white/85 transition-colors hover:text-[#2BB36A]">
               {l}
             </button>
           ))}
         </nav>
-        <div className="flex flex-col gap-2.5 text-[14px]">
-          {user ? (
-            <Link href={user.role === "teacher" ? "/compte" : "/dashboard"} className="w-fit text-[#3d3d3d] hover:text-[#171717]">
-              {user.role === "teacher" ? "Mon espace" : "Tableau de bord"}
-            </Link>
-          ) : (
-            <>
-              <Link href="/connexion" className="w-fit text-[#3d3d3d] hover:text-[#171717]">
-                Se connecter
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 text-[12.5px] text-white/45">
+          <span className="flex items-center gap-2.5">
+            <span className="grid h-7 w-7 place-items-center rounded-[8px] bg-white">
+              <PedagoMark size={17} />
+            </span>
+            © {new Date().getFullYear()} PEDAGO · Fait au Cameroun
+          </span>
+          <span className="flex gap-5">
+            {user ? (
+              <Link href={user.role === "teacher" ? "/compte" : "/dashboard"} className="hover:text-white">
+                {user.role === "teacher" ? "Mon espace" : "Tableau de bord"}
               </Link>
-              <Link href="/inscription" className="w-fit text-[#3d3d3d] hover:text-[#171717]">
-                Créer un compte
-              </Link>
-            </>
-          )}
+            ) : (
+              <>
+                <Link href="/connexion" className="hover:text-white">
+                  Se connecter
+                </Link>
+                <Link href="/inscription" className="hover:text-white">
+                  Créer un compte
+                </Link>
+              </>
+            )}
+          </span>
         </div>
       </div>
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 pb-8 text-[12.5px] text-[#7a7a7a]">
-        <span>© {new Date().getFullYear()} PEDAGO · Fait au Cameroun</span>
-        <PedagoMark size={20} />
-      </div>
+      <Lightbox index={zoom} onClose={() => { if (zoom !== null) setActive(zoom); setZoom(null); }} onMove={(d) => setZoom((z) => (z === null ? z : wrap(z + d)))} />
     </footer>
   );
 }
@@ -345,19 +375,17 @@ function ScrollTop() {
 export function Site({ user, apkUrl, downloadCard }: { user: SiteUser; apkUrl: string | null; downloadCard: ReactNode }) {
   return (
     <div className="site relative">
-      <div className="site-aurora" aria-hidden />
-      <Header user={user} apkUrl={apkUrl} />
+            <Header user={user} apkUrl={apkUrl} />
       <main>
         <Hero apkUrl={apkUrl} />
+        <Why />
+        <Film />
         <HowItWorks />
-        <Compare />
-        <Benefits apkUrl={apkUrl} />
-        <Gallery />
+        <Features apkUrl={apkUrl} />
         <DownloadSection card={downloadCard} user={user} />
         <Faq />
-        <FinalCta user={user} apkUrl={apkUrl} />
       </main>
-      <Footer user={user} />
+      <Footer user={user} apkUrl={apkUrl} />
       <ScrollTop />
     </div>
   );

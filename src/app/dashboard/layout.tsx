@@ -17,7 +17,10 @@ export default async function DashLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[248px_1fr]">
       <Sidebar user={user} />
-      <main className="min-w-0 px-5 pb-16 pt-8 lg:px-10">{children}</main>
+      <main className="min-w-0 px-4 pb-16 pt-8 sm:px-5 lg:px-10">
+        {/* Largeur de lecture bornée : sur grand écran, le contenu ne s'étire pas d'un bord à l'autre. */}
+        <div className="mx-auto w-full max-w-[1180px]">{children}</div>
+      </main>
     </div>
   );
 }

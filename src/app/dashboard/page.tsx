@@ -42,7 +42,7 @@ export default function Overview() {
               <Link href="/dashboard/ressources?status=HUMAN_REVIEW" className="bubble inline-flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold">
                 Relire <ArrowUpRight size={15} />
               </Link>
-              <Link href="/dashboard/ia" className="bubble bubble-ink inline-flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold">
+              <Link href="/dashboard/bibliotheque" className="bubble bubble-ink inline-flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold">
                 Lancer une production
               </Link>
             </div>

@@ -10,7 +10,7 @@ cp .env.example .env.local
 npm run dev   # http://localhost:3000
 ```
 
-L'API `pedago-api` doit tourner sur le port 5000. Comptes de test : voir `pedago-api/.env.example` (`SEED_ADMIN_*`, `SEED_REVIEWER_*`).
+L'API `pedago-api` doit tourner sur le port 5000. Comptes de test : voir `pedago-api/.env.example` (`SEED_ADMIN_*`, `SEED_TEACHER_*`).
 
 ## Sécurité
 

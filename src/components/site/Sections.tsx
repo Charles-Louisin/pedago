@@ -1,10 +1,10 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ArrowRight, BookOpenCheck, Camera, ChevronLeft, ChevronRight, CloudOff, PenLine, Printer } from "lucide-react";
+import { ArrowDown, BookOpen, CalendarCheck, CloudDownload, FileText, ImagePlus, Play, Sparkles, Sun } from "lucide-react";
 import { HeroVideo } from "./HeroVideo";
-import { D, Device, DownloadButton, EASE, H2, PRIMARY, Reveal, SECONDARY, scrollToAnchor } from "./ui";
+import { D, Device, DownloadButton, EASE, H2, PRIMARY, Reveal, scrollToAnchor } from "./ui";
 
 /** Largeur des captures de l'app : jamais plus hautes que l'écran, sur ordinateur comme sur téléphone. */
 const PHONE = "w-[min(72vw,280px,calc((100svh-190px)*0.46))]";
@@ -17,30 +17,208 @@ const subscribeDesktop = (cb: () => void) => {
 };
 const useDesktop = () => useSyncExternalStore(subscribeDesktop, () => window.matchMedia(desktopQuery).matches, () => true);
 
+/** Délai d'animation CSS (voir .site-word, .site-gem… dans globals.css). */
+const d = (s: number, extra?: Record<string, string>) => ({ ["--d" as string]: `${s}s`, ...extra });
+
 /* ───────────────────────── Accueil ───────────────────────── */
 
-export function Hero({ apkUrl }: { apkUrl: string | null }) {
+const GEMS = [
+  { icon: CalendarCheck, label: "Programme", from: "#F7C45A", to: "#E08A1E" },
+  { icon: BookOpen, label: "Fiches", from: "#4FD08A", to: "#1A8A4C" },
+  { icon: Sparkles, label: "Illustrations", from: "#8DB5FF", to: "#2F6FDB" },
+];
+
+function Word({ children, delay }: { children: string; delay: number }) {
   return (
-    <section id="accueil" className="relative z-10 pt-28 pb-16 sm:pt-36 lg:pb-24">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-[1fr_1.1fr]">
-        <div>
-          <h1 className="site-enter text-[clamp(40px,8vw,66px)] font-semibold leading-[0.98] tracking-[-0.035em] [text-wrap:balance]" style={{ ["--d" as string]: "0s" }}>
-            Prépare ta classe <span className="text-[#1F7A4D]">en une photo.</span>
+    <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
+      <span className="site-word" style={d(delay)}>
+        {children}
+      </span>
+    </span>
+  );
+}
+
+export function Hero({ apkUrl }: { apkUrl: string | null }) {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  // En descendant, la photo glisse plus lentement que la carte : un peu de profondeur, sans en faire trop.
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "14%"]);
+  const fade = useTransform(scrollYProgress, [0, 0.7], [1, reduce ? 1 : 0.25]);
+  return (
+    <section id="accueil" ref={ref} className="relative z-10 px-3 pt-[84px] sm:px-5">
+      <div className="site-card-in relative mx-auto flex max-w-[1400px] overflow-hidden sm:min-h-[600px] rounded-[32px] bg-[#151515] sm:h-[min(80svh,780px)]" style={d(0)}>
+        <motion.div className="absolute inset-0" style={{ y }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/site/photos/enseignante.jpg"
+            alt=""
+            width={2400}
+            height={3600}
+            fetchPriority="high"
+            decoding="async"
+            className="site-kenburns h-[115%] w-full object-cover object-[60%_38%] sm:object-[62%_50%]"
+            style={d(0)}
+          />
+        </motion.div>
+        {/* Voile : sombre à gauche pour le texte, transparent sur le visage. */}
+        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,12,11,.86)_0%,rgba(12,12,11,.62)_34%,rgba(12,12,11,.12)_66%,rgba(12,12,11,0)_100%)] max-sm:bg-[linear-gradient(0deg,rgba(12,12,11,.9)_0%,rgba(12,12,11,.72)_55%,rgba(12,12,11,.45)_100%)]" />
+        <div aria-hidden className="absolute inset-0 bg-black/15" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/45 to-transparent" />
+
+        <motion.div style={{ opacity: fade }} className="relative flex w-full flex-col justify-center px-6 pb-14 pt-24 sm:justify-center sm:px-14 sm:py-16 lg:px-24">
+          <h1 className="max-w-[12ch] text-[clamp(44px,7vw,96px)] font-extrabold leading-[0.95] tracking-[-0.035em] text-white">
+            <Word delay={0.15}>Ta</Word> <Word delay={0.22}>classe</Word>{" "}
+            <span className="relative inline-block">
+              <Word delay={0.29}>prête</Word>
+              <svg aria-hidden viewBox="0 0 220 30" className="absolute -bottom-[0.16em] left-[-4%] h-[0.32em] w-[108%] overflow-visible" preserveAspectRatio="none">
+                <path d="M4 22 C 60 6, 150 2, 216 12" pathLength={1} fill="none" stroke="#2BB36A" strokeWidth="9" strokeLinecap="round" className="site-draw" style={d(0.85)} />
+              </svg>
+            </span>{" "}
+            <Word delay={0.36}>chaque</Word> <Word delay={0.43}>matin.</Word>
           </h1>
-          <p className="site-enter mt-6 max-w-[34rem] text-[17px] leading-relaxed text-[#4a4a4a] sm:text-[18px]" style={{ ["--d" as string]: ".08s" }}>
-            Photographie ta fiche manuscrite : PEDAGO la remet au propre, l’adapte au niveau de ta classe et la garde prête à imprimer, même sans réseau.
+          <p className="site-enter mt-7 max-w-[30rem] text-[16.5px] leading-relaxed text-white/85 sm:text-[18px]" style={d(0.55)}>
+            La leçon du moment, sa fiche prête à imprimer et ton bilan en un geste. <strong className="font-semibold text-white">Même sans réseau.</strong>
           </p>
-          <div className="site-enter mt-8 flex flex-wrap gap-3" style={{ ["--d" as string]: ".16s" }}>
+          <div className="site-enter mt-8 flex flex-wrap gap-3" style={d(0.65)}>
             <DownloadButton apkUrl={apkUrl} className={PRIMARY} />
-            <button type="button" onClick={() => scrollToAnchor("#histoire")} className={SECONDARY}>
-              Voir comment <ArrowRight size={17} />
+            <button
+              type="button"
+              onClick={() => scrollToAnchor("#film")}
+              className="inline-flex h-14 items-center gap-2.5 rounded-[16px] bg-white/12 px-6 text-[16px] font-semibold text-white ring-1 ring-white/25 backdrop-blur-md transition-colors duration-300 hover:bg-white/20"
+            >
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-[#151515]">
+                <Play size={13} fill="currentColor" className="translate-x-px" />
+              </span>
+              Voir le film
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="site-enter" style={{ ["--d" as string]: ".12s", ["--y" as string]: "32px" }}>
+        {/* Pastilles flottantes (comme les gemmes de la référence) : les trois piliers de l'app. */}
+        <ul className="absolute right-5 top-1/2 hidden -translate-y-1/2 flex-col gap-4 sm:flex lg:right-12" aria-hidden>
+          {GEMS.map((g, i) => (
+            <li key={g.label} className="site-gem group relative" style={d(1 + i * 0.12, { ["--f" as string]: `${i * 0.6}s` })}>
+              <span
+                className="grid h-[58px] w-[58px] place-items-center rounded-[18px] text-white shadow-[0_14px_30px_-12px_rgba(0,0,0,.6),inset_0_2px_0_rgba(255,255,255,.45),inset_0_-3px_0_rgba(0,0,0,.15)] transition-transform duration-300 group-hover:-translate-x-1 group-hover:rotate-[-6deg]"
+                style={{ background: `linear-gradient(145deg, ${g.from}, ${g.to})` }}
+              >
+                <g.icon size={24} strokeWidth={2.2} />
+              </span>
+              <span className="pointer-events-none absolute right-[72px] top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 text-[12.5px] font-semibold text-[#151515] opacity-0 transition-all duration-300 group-hover:right-[70px] group-hover:opacity-100">
+                {g.label}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          onClick={() => scrollToAnchor("#pourquoi")}
+          aria-label="Découvrir la suite"
+          className="site-enter absolute bottom-6 right-6 hidden h-12 w-12 place-items-center rounded-full bg-white/12 text-white ring-1 ring-white/25 backdrop-blur-md transition-colors hover:bg-white/20 sm:grid"
+          style={d(1.2)}
+        >
+          <ArrowDown size={19} className="animate-[site-float_2.4s_ease-in-out_infinite]" />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ───────────────────────── Pourquoi PEDAGO ───────────────────────── */
+
+const FACTS = [
+  ["SIL → CM2", "et Class One → Six"],
+  ["2 min", "pour installer l’app"],
+  ["100 %", "lisible hors connexion"],
+];
+
+export function Why() {
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const r1 = useTransform(scrollYProgress, [0, 0.5], reduce ? [-7, -7] : [-16, -7]);
+  const r2 = useTransform(scrollYProgress, [0, 0.5], reduce ? [6, 6] : [16, 6]);
+  const y1 = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [60, -60]);
+  const y2 = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [120, -40]);
+  return (
+    <section id="pourquoi" ref={ref} className="relative z-10 overflow-hidden py-24 sm:py-32">
+      {/* Grand trait de fond, très clair (comme la référence). */}
+      <svg aria-hidden viewBox="0 0 1400 900" className="pointer-events-none absolute inset-0 -z-10 h-full w-full" preserveAspectRatio="none">
+        <path d="M640 -40 C 760 200, 980 420, 1160 940" fill="none" stroke="#F4F1EC" strokeWidth="70" strokeLinecap="round" />
+      </svg>
+      <motion.figure style={{ rotate: r1, y: y1 }} className="absolute left-[2%] top-24 hidden w-[min(21vw,300px)] overflow-hidden rounded-[28px] bg-[#EAE4DB] p-0 shadow-[0_40px_70px_-40px_rgba(21,21,21,.45)] lg:block">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/site/photos/classe.jpg" alt="Une enseignante devant sa classe" width={1200} height={1800} loading="lazy" decoding="async" className="aspect-[4/5] w-full object-cover" />
+      </motion.figure>
+      <motion.figure style={{ rotate: r2, y: y2 }} className="absolute right-[2%] top-[60%] hidden w-[min(22vw,310px)] overflow-hidden rounded-[28px] bg-[#1A8A4C] shadow-[0_40px_70px_-40px_rgba(21,21,21,.45)] lg:block">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/site/photos/eleves.jpg" alt="Des élèves lèvent la main pendant la leçon" width={1200} height={800} loading="lazy" decoding="async" className="aspect-[5/4] w-full object-cover" />
+      </motion.figure>
+
+      <div className="mx-auto max-w-2xl px-5 text-center">
+        <Reveal>
+          <h2 className={H2}>Moins de soirées à préparer. Plus de temps pour tes élèves.</h2>
+        </Reveal>
+        <Reveal delay={0.12}>
+          <p className="mx-auto mt-6 max-w-xl text-[17px] leading-relaxed text-[#6B6158]">
+            PEDAGO suit le programme officiel de ta classe. Chaque matin, la leçon du moment t’attend avec sa fiche complète, prête à imprimer.
+          </p>
+        </Reveal>
+      </div>
+
+      <ul className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 px-5 sm:grid-cols-3">
+        {FACTS.map(([big, small], i) => (
+          <motion.li
+            key={big}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10% 0px" }}
+            transition={{ duration: D.slow, ease: EASE, delay: 0.1 + i * 0.07 }}
+            className="rounded-[22px] bg-[#F7F5F1] px-2 py-5 text-center last:col-span-2 sm:last:col-span-1"
+          >
+            <p className="font-display whitespace-nowrap text-[clamp(19px,5.6vw,28px)] font-extrabold tracking-[-0.03em] text-[#151515]">{big}</p>
+            <p className="mt-1 text-[13px] leading-snug text-[#6B6158]">{small}</p>
+          </motion.li>
+        ))}
+      </ul>
+
+      {/* Téléphone : les deux photos sous le texte. */}
+      <div className="mx-auto mt-12 grid max-w-md grid-cols-2 gap-4 px-5 lg:hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/site/photos/classe.jpg" alt="" loading="lazy" className="aspect-[4/5] w-full -rotate-3 rounded-[22px] object-cover" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/site/photos/eleves.jpg" alt="" loading="lazy" className="mt-8 aspect-[4/5] w-full rotate-3 rounded-[22px] object-cover" />
+      </div>
+    </section>
+  );
+}
+
+/* ───────────────────────── Le film : il grandit au défilement ───────────────────────── */
+
+export function Film() {
+  const desktop = useDesktop();
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "start start"] });
+  const scale = useTransform(scrollYProgress, [0, 1], [reduce ? 1 : 0.62, 1]);
+  const radius = useTransform(scrollYProgress, [0, 1], [44, 28]);
+  if (!desktop) {
+    return (
+      <section id="film" ref={ref} className="relative z-10 px-5 py-12">
+        <Reveal>
           <HeroVideo />
-        </div>
+        </Reveal>
+      </section>
+    );
+  }
+  return (
+    <section id="film" ref={ref} className="relative z-10 h-[150svh]">
+      <div className="sticky top-0 flex h-svh flex-col items-center justify-center overflow-hidden px-5">
+        <motion.div style={{ scale, borderRadius: radius }} className="relative w-[min(1280px,94vw,calc((100svh-90px)*16/9))] origin-center overflow-hidden will-change-transform">
+          <HeroVideo />
+        </motion.div>
       </div>
     </section>
   );
@@ -49,10 +227,10 @@ export function Hero({ apkUrl }: { apkUrl: string | null }) {
 /* ───────────────────────── Comment ça marche ───────────────────────── */
 
 const STEPS = [
-  { icon: Camera, title: "Photographie ta fiche", text: "Une photo de ta fiche manuscrite suffit. PEDAGO lit le cartouche, l’objectif, le déroulement et les exercices.", screen: "fiche" },
-  { icon: Printer, title: "Imprime-la au bon niveau", text: "Facile, standard ou approfondi : la fiche s’adapte à ta classe, avec les corrigés si tu veux.", screen: "imprimer" },
-  { icon: BookOpenCheck, title: "Fais le bilan le soir", text: "Trente secondes : faite, partielle ou reportée. Ton programme se recale tout seul.", screen: "bilan" },
-  { icon: CloudOff, title: "Retrouve-la hors ligne", text: "Tes leçons restent sur ton téléphone. Sans réseau à l’école, tout s’ouvre et s’imprime.", screen: "hors-connexion" },
+  { icon: Sun, title: "Ouvre la leçon du moment", text: "Chaque matin, ta journée est là : le cours en cours, les suivants et ta progression.", screen: "accueil" },
+  { icon: FileText, title: "Lis et imprime ta fiche", text: "Objectifs, déroulement, exercices et corrigés au format A4. Prête à imprimer ou à partager.", screen: "lecteur" },
+  { icon: ImagePlus, title: "Illustre-la en un geste", text: "Décris l’image voulue : tu reçois un brouillon, et tu choisis s’il entre dans ta fiche.", screen: "illustrations" },
+  { icon: CloudDownload, title: "Garde tout hors ligne", text: "Télécharge la semaine d’un geste : tes fiches s’ouvrent en classe, sans réseau.", screen: "semaine" },
 ] as const;
 const STEP_MS = 6000;
 
@@ -64,13 +242,13 @@ function StepPhone({ i }: { i: number }) {
         <AnimatePresence initial={false}>
           <motion.img
             key={s.screen}
-            src={`/site/screens/${s.screen}.jpg`}
+            src={`/site/app/${s.screen}.jpg`}
             alt={`Écran de l’app : ${s.title}`}
-            width={390}
-            height={844}
+            width={780}
+            height={1688}
             decoding="async"
-            initial={{ opacity: 0, scale: 1.03 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 1.04, filter: "blur(6px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0 }}
             transition={{ duration: D.base, ease: EASE }}
             className="absolute inset-0 h-full w-full object-cover"
@@ -84,6 +262,7 @@ function StepPhone({ i }: { i: number }) {
 export function HowItWorks() {
   const desktop = useDesktop();
   const [active, setActive] = useState(0);
+  const [open, setOpen] = useState(true);
   const [paused, setPaused] = useState(false);
   const [seen, setSeen] = useState(false);
   const ref = useRef<HTMLElement>(null);
@@ -97,7 +276,7 @@ export function HowItWorks() {
     return () => io.disconnect();
   }, []);
   // Sur ordinateur, les étapes avancent seules (pause au survol). Sur téléphone, jamais : la page bougerait sous le doigt.
-  const auto = desktop && seen && !paused;
+  const auto = desktop && seen && !paused && open;
   useEffect(() => {
     if (!auto || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const t = setTimeout(() => setActive((a) => (a + 1) % STEPS.length), STEP_MS);
@@ -105,9 +284,13 @@ export function HowItWorks() {
   }, [active, auto]);
 
   const select = (i: number) => {
+    if (i === active) {
+      setOpen(!open);
+      return;
+    }
     setActive(i);
+    setOpen(true);
     if (desktop) return;
-    // Sur téléphone, l'étape précédente se replie : on garde l'étape touchée sous la barre du haut.
     setTimeout(() => {
       const top = items.current[i]?.getBoundingClientRect().top ?? 100;
       if (top < 84) window.scrollTo({ top: window.scrollY + top - 92, behavior: "smooth" });
@@ -115,15 +298,15 @@ export function HowItWorks() {
   };
 
   return (
-    <section id="histoire" ref={ref} className="relative z-10 bg-white py-24 sm:py-28">
+    <section id="histoire" ref={ref} className="relative z-10 py-24 sm:py-28">
       <div className="mx-auto max-w-6xl px-5">
         <Reveal>
-          <h2 className={`${H2} max-w-2xl`}>Quatre gestes, et ta semaine est prête.</h2>
+          <h2 className={`${H2} max-w-2xl`}>Quatre gestes, et ta journée est prête.</h2>
         </Reveal>
         <div className="mt-12 grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]" onPointerEnter={(e) => e.pointerType === "mouse" && setPaused(true)} onPointerLeave={() => setPaused(false)}>
           <ol className="grid gap-2" role="tablist" aria-label="Étapes">
             {STEPS.map((s, i) => {
-              const on = i === active;
+              const on = i === active && open;
               return (
                 <li key={s.title} ref={(el) => void (items.current[i] = el)}>
                   <button
@@ -131,17 +314,17 @@ export function HowItWorks() {
                     role="tab"
                     aria-selected={on}
                     onClick={() => select(i)}
-                    className={`relative w-full overflow-hidden rounded-[16px] p-5 text-left transition-colors duration-300 ${on ? "bg-[#f1f5f0]" : "hover:bg-black/[0.03]"}`}
+                    className={`relative w-full overflow-hidden rounded-[22px] p-5 text-left transition-colors duration-300 ${on ? "bg-[#F7F5F1]" : "hover:bg-[#F7F5F1]/60"}`}
                   >
                     <div className="flex items-start gap-4">
-                      <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-[12px] transition-colors duration-300 ${on ? "bg-[#1F7A4D] text-white" : "bg-black/5 text-[#3d3d3d]"}`}>
+                      <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-[14px] transition-colors duration-300 ${on ? "bg-[#1A8A4C] text-white" : "bg-[#EAE4DB] text-[#4A423B]"}`}>
                         <s.icon size={19} />
                       </span>
                       <div className="min-w-0">
-                        <h3 className="pt-2.5 text-[17px] font-semibold leading-tight">{s.title}</h3>
+                        <h3 className="pt-2.5 text-[17px] font-bold leading-tight">{s.title}</h3>
                         <AnimatePresence initial={false}>
                           {on && (
-                            <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: D.quick, ease: EASE }} className="overflow-hidden text-[15px] leading-relaxed text-[#4a4a4a]">
+                            <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: D.quick, ease: EASE }} className="overflow-hidden text-[15px] leading-relaxed text-[#6B6158]">
                               <span className="block pt-2">{s.text}</span>
                             </motion.p>
                           )}
@@ -149,12 +332,11 @@ export function HowItWorks() {
                       </div>
                     </div>
                     {on && desktop && (
-                      <span className="absolute inset-x-5 bottom-0 h-[3px] overflow-hidden rounded-full bg-[#1F7A4D]/10">
-                        <span key={`${active}-${auto}`} className="block h-full origin-left bg-[#1F7A4D]" style={{ animation: auto ? `site-progress ${STEP_MS}ms linear both` : "none", transform: auto ? undefined : "scaleX(0)" }} />
+                      <span className="absolute inset-x-5 bottom-0 h-[3px] overflow-hidden rounded-full bg-[#1A8A4C]/10">
+                        <span key={`${active}-${auto}`} className="block h-full origin-left bg-[#1A8A4C]" style={{ animation: auto ? `site-progress ${STEP_MS}ms linear both` : "none", transform: auto ? undefined : "scaleX(0)" }} />
                       </span>
                     )}
                   </button>
-                  {/* Téléphone : la démo s'ouvre juste sous l'étape choisie. */}
                   {!desktop && (
                     <AnimatePresence initial={false}>
                       {on && (
@@ -171,8 +353,11 @@ export function HowItWorks() {
             })}
           </ol>
           {desktop && (
-            <div className={`mx-auto ${PHONE}`}>
-              <StepPhone i={active} />
+            <div className="relative">
+              <div aria-hidden className="absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-[48px] bg-[#EAE4DB]" />
+              <div className={`relative mx-auto ${PHONE}`}>
+                <StepPhone i={active} />
+              </div>
             </div>
           )}
         </div>
@@ -181,160 +366,48 @@ export function HowItWorks() {
   );
 }
 
-/* ───────────────────────── Avant / après ───────────────────────── */
+/* ───────────────────────── Fonctionnalités ───────────────────────── */
 
-const PRESETS = [
-  [100, "Manuscrite"],
-  [50, "Les deux"],
-  [0, "PEDAGO"],
-] as const;
-
-export function Compare() {
-  const [pos, setPos] = useState(50);
-  const [dragging, setDragging] = useState(false);
-  const ease = dragging ? "none" : ".45s cubic-bezier(.16,1,.3,1)";
-  return (
-    <section id="avant-apres" className="relative z-10 py-24 sm:py-28">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-[1fr_1.1fr]">
-        <Reveal>
-          <h2 className={H2}>Elle reste ta fiche. En plus propre.</h2>
-          <p className="mt-5 max-w-md text-[17px] leading-relaxed text-[#4a4a4a]">
-            Fais glisser la poignée : à gauche, la fiche écrite à la main ; à droite, la même fiche remise en page par PEDAGO. Même école, même objectif, mêmes exercices.
-          </p>
-          <div className="mt-7 inline-flex rounded-full bg-black/[0.05] p-1" role="group" aria-label="Affichage">
-            {PRESETS.map(([v, l]) => (
-              <button key={l} type="button" onClick={() => setPos(v)} aria-pressed={pos === v} className={`h-10 rounded-full px-4 text-[14px] font-semibold transition-colors duration-200 ${pos === v ? "bg-white text-[#171717] shadow-[0_2px_6px_-2px_rgba(23,23,23,.25)]" : "text-[#4a4a4a] hover:text-[#171717]"}`}>
-                {l}
-              </button>
-            ))}
-          </div>
-        </Reveal>
-        <Reveal delay={0.08}>
-          <div className="relative mx-auto aspect-[3/4] w-[min(100%,460px,calc((100svh-180px)*0.75))] select-none overflow-hidden rounded-[20px] bg-[#efe8dc] shadow-[0_40px_80px_-40px_rgba(23,23,23,.45)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/site/screens/fiche-a4.jpg" alt="La fiche remise en page par PEDAGO" width={1280} height={1810} decoding="async" loading="lazy" className="absolute inset-0 h-full w-full bg-white object-cover object-top" />
-            <div className="absolute inset-0 will-change-[clip-path]" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)`, transition: `clip-path ${ease}` }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/site/fiche/manuscrite.jpg" alt="La fiche de préparation écrite à la main" width={2752} height={1536} decoding="async" loading="lazy" className="h-full w-full object-cover object-[50%_45%]" />
-            </div>
-            <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow-[0_0_10px_rgba(0,0,0,.25)]" style={{ left: `${pos}%`, transition: `left ${ease}` }}>
-              <span className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white text-[#171717] shadow-[0_6px_16px_-6px_rgba(0,0,0,.45)]">
-                <ChevronLeft size={15} className="-mr-1" />
-                <ChevronRight size={15} className="-ml-1" />
-              </span>
-            </div>
-            <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-[12px] font-semibold text-white">Manuscrite</span>
-            <span className="absolute right-3 top-3 rounded-full bg-[#1F7A4D] px-3 py-1 text-[12px] font-semibold text-white">PEDAGO</span>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={pos}
-              onChange={(e) => setPos(Number(e.target.value))}
-              onPointerDown={() => setDragging(true)}
-              onPointerUp={() => setDragging(false)}
-              onPointerCancel={() => setDragging(false)}
-              aria-label="Comparer la fiche manuscrite et la fiche PEDAGO"
-              className="absolute inset-0 h-full w-full cursor-ew-resize touch-pan-y opacity-0"
-            />
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* ───────────────────────── Bénéfices ───────────────────────── */
-
-const BENEFITS = [
-  { icon: PenLine, title: "Fini de recopier", text: "Ta fiche est lue une fois, puis réutilisée et imprimée autant de fois qu’il le faut." },
-  { icon: Printer, title: "Une fiche propre", text: "Mise en page fidèle, niveau adapté, corrigés en option : prête pour l’inspection." },
-  { icon: BookOpenCheck, title: "Un programme à jour", text: "Les leçons du jour arrivent seules, alignées sur les programmes officiels." },
-  { icon: CloudOff, title: "Partout, tout le temps", text: "Sans connexion à l’école, sans données mobiles : PEDAGO fonctionne." },
+const FEATURES = [
+  { title: "Ton programme, jour par jour", text: "Le calendrier du mois, les leçons faites et celles à venir.", img: "programme", bg: "#EAE4DB", pos: "50% 0%" },
+  { title: "Toute la bibliothèque de ta classe", text: "Fiches, exercices, évaluations : par matière, prêtes à ouvrir.", img: "bibliotheque", bg: "#E3F2E9", pos: "50% 0%" },
+  { title: "Le bilan en un geste", text: "Fait, pas fait ou reporté : la suite se recale toute seule.", img: "accueil", bg: "#FBEBD7", pos: "50% 0%" },
+  { title: "Clair ou sombre", text: "PEDAGO suit le thème de ton téléphone, le soir comme en classe.", img: "sombre", bg: "#24211F", pos: "50% 0%", dark: true },
 ];
 
-export function Benefits({ apkUrl }: { apkUrl: string | null }) {
+export function Features({ apkUrl }: { apkUrl: string | null }) {
   return (
-    <section id="avantages" className="relative z-10 bg-white py-24 sm:py-28">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
-        <Reveal className="lg:sticky lg:top-28 lg:self-start">
-          <h2 className={H2}>Tes soirées, et une classe prête chaque matin.</h2>
-          <div className="mt-8">
+    <section id="avantages" className="relative z-10 py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <Reveal>
+            <h2 className={`${H2} max-w-xl`}>Tout ce qu’il faut pour ta classe.</h2>
+          </Reveal>
+          <Reveal delay={0.06}>
             <DownloadButton apkUrl={apkUrl} className={PRIMARY} />
-          </div>
-        </Reveal>
-        <ul className="border-t border-black/[0.08]">
-          {BENEFITS.map((b) => (
-            <li key={b.title} className="group flex gap-5 border-b border-black/[0.08] py-7">
-              <b.icon size={22} className="mt-1 shrink-0 text-[#1F7A4D] transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110" />
-              <div>
-                <h3 className="text-[20px] font-semibold tracking-[-0.015em]">{b.title}</h3>
-                <p className="mt-1.5 max-w-[46ch] text-[15.5px] leading-relaxed text-[#4a4a4a]">{b.text}</p>
+          </Reveal>
+        </div>
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2">
+          {FEATURES.map((f, i) => (
+            <motion.li
+              key={f.title}
+              initial={{ opacity: 0, y: 40, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-10% 0px" }}
+              transition={{ duration: D.slow, ease: EASE, delay: (i % 2) * 0.08 }}
+              className="group relative flex h-[440px] flex-col overflow-hidden rounded-[32px] px-7 pt-7 sm:h-[480px] sm:px-9 sm:pt-9"
+              style={{ background: f.bg }}
+            >
+              <h3 className={`font-display text-[26px] font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-[30px] ${f.dark ? "text-[#F5F2EC]" : "text-[#151515]"}`}>{f.title}</h3>
+              <p className={`mt-2 max-w-[34ch] text-[15px] leading-relaxed ${f.dark ? "text-[#B9AFA4]" : "text-[#6B6158]"}`}>{f.text}</p>
+              <div className="relative mx-auto mt-7 w-[min(78%,300px)] flex-1 translate-y-2 overflow-hidden rounded-t-[26px] shadow-[0_-10px_40px_-20px_rgba(0,0,0,.35)] ring-1 ring-black/5 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/site/app/${f.img}.jpg`} alt={`Écran de l’app : ${f.title}`} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: f.pos }} />
               </div>
-            </li>
+            </motion.li>
           ))}
         </ul>
       </div>
-    </section>
-  );
-}
-
-/* ───────────────────────── Écrans ───────────────────────── */
-
-const SCREENS = [
-  ["accueil", "Aujourd’hui"],
-  ["fiche", "Ma fiche"],
-  ["imprimer", "Imprimer"],
-  ["bilan", "Bilan"],
-  ["programme", "Programme"],
-  ["filtres", "Filtres"],
-  ["bibliotheque", "Bibliothèque"],
-  ["hors-connexion", "Hors connexion"],
-  ["moi", "Moi"],
-  ["connexion", "Connexion"],
-] as const;
-
-export function Gallery() {
-  const ref = useRef<HTMLUListElement>(null);
-  const [edge, setEdge] = useState({ start: true, end: false });
-  const update = () => {
-    const el = ref.current;
-    if (!el) return;
-    setEdge({ start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth > el.scrollWidth - 8 });
-  };
-  const move = (dir: 1 | -1) => {
-    const el = ref.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * Math.max(260, el.clientWidth * 0.8), behavior: "smooth" });
-  };
-  const arrow = "grid h-11 w-11 place-items-center rounded-full bg-white shadow-[0_0_0_1px_rgba(23,23,23,.1)] transition-[opacity,background-color] hover:bg-black/5 disabled:pointer-events-none disabled:opacity-35";
-  const pad = "px-[max(1.25rem,calc((100vw-72rem)/2+1.25rem))] scroll-px-[max(1.25rem,calc((100vw-72rem)/2+1.25rem))]";
-  return (
-    <section id="ecrans" className="relative z-10 py-24 sm:py-28" aria-label="Écrans de l’app">
-      <div className="mx-auto flex max-w-6xl items-end justify-between gap-6 px-5">
-        <Reveal>
-          <h2 className={H2}>Tout PEDAGO, écran par écran.</h2>
-        </Reveal>
-        <div className="hidden gap-2 sm:flex">
-          <button type="button" onClick={() => move(-1)} disabled={edge.start} aria-label="Écrans précédents" className={arrow}>
-            <ChevronLeft size={19} />
-          </button>
-          <button type="button" onClick={() => move(1)} disabled={edge.end} aria-label="Écrans suivants" className={arrow}>
-            <ChevronRight size={19} />
-          </button>
-        </div>
-      </div>
-      <ul ref={ref} onScroll={update} className={`mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain pb-6 pt-2 [scrollbar-width:none] ${pad}`}>
-        {SCREENS.map(([file, label]) => (
-          <li key={file} className="group w-[min(200px,calc((100svh-200px)*0.46))] shrink-0 snap-start sm:w-[min(230px,calc((100svh-200px)*0.46))]">
-            <Device className="transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:-translate-y-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/site/screens/${file}.jpg`} alt={`Écran ${label} de l’app PEDAGO`} loading="lazy" decoding="async" width={390} height={844} />
-            </Device>
-            <p className="mt-3 text-center text-[14px] font-medium text-[#3d3d3d]">{label}</p>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }

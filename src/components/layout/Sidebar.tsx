@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpenCheck, CalendarDays, FileSearch, GitBranch, LayoutGrid, LogOut, Menu, Sparkles, Users, X } from "lucide-react";
+import { BookOpenCheck, CalendarDays, FileSearch, GitBranch, LayoutGrid, Library, LogOut, Menu, Sparkles, Users, X } from "lucide-react";
 import { clsx } from "clsx";
 import { PedagoWordmark } from "@/components/brand/PedagoMark";
 import { ThemeToggle } from "./ThemeToggle";
@@ -19,7 +19,13 @@ const SECTIONS = [
       { href: "/dashboard/sources", label: "Sources officielles", icon: FileSearch },
     ],
   },
-  { title: "Production", items: [{ href: "/dashboard/ia", label: "Usine IA", icon: Sparkles }] },
+  {
+    title: "Production",
+    items: [
+      { href: "/dashboard/bibliotheque", label: "Construire ma bibliothèque", icon: Library },
+      { href: "/dashboard/ia", label: "Usine IA", icon: Sparkles },
+    ],
+  },
   {
     title: "Administration",
     admin: true,
@@ -74,7 +80,7 @@ function NavContent({ user, onNavigate }: { user: User; onNavigate?: () => void 
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-medium">{user.fullName}</p>
-          <p className="text-[11.5px] text-muted">{user.role === "admin" ? "Administrateur" : "Relecteur"}</p>
+          <p className="text-[11.5px] text-muted">Administrateur</p>
         </div>
         <button
           aria-label="Se déconnecter"

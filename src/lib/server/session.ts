@@ -9,7 +9,7 @@ const MFA = "pedago_mfa";
 const secure = process.env.NODE_ENV === "production";
 
 /** mfa : session ouverte avec la double authentification (sinon, seule la page Sécurité est accessible). */
-export type SessionUser = { id: string; fullName: string; email: string | null; role: "teacher" | "reviewer" | "admin"; mfa?: boolean; emailVerified?: boolean };
+export type SessionUser = { id: string; fullName: string; email: string | null; role: "teacher" | "admin"; mfa?: boolean; emailVerified?: boolean };
 
 export async function setSession(tokens: { accessToken: string; refreshToken: string; expiresIn: number }, user?: SessionUser) {
   const jar = await cookies();

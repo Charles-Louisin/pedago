@@ -36,6 +36,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Pub du site (vidéos et affiche) : gardée 7 jours en cache, rafraîchie en arrière-plan ensuite.
+        source: "/site/:file(pub[^/]*)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
+      },
+      {
         source: "/((?!api/proxy/).*)",
         headers: [
           { key: "Content-Security-Policy", value: csp },
