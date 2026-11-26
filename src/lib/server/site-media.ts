@@ -22,7 +22,12 @@ export async function getSiteMedia(key: string): Promise<SiteMedia | null> {
     if (!res.ok) return null;
     const m = (await res.json()) as SiteMedia;
     // Seulement des fichiers UploadThing (ce que la politique de sécurité du site autorise).
-    const sources = (m.sources ?? []).filter((s) => UT.test(s.url) && (s.type === "video/webm" || s.type === "video/mp4"));
+    // Ordre : petite version d'abord (elle porte la condition de largeur), puis MP4 avant WebM.
+    // Le MP4 (H.264) est décodé par la puce vidéo de presque tous les appareils ; le WebM (VP9) souvent
+    // par le processeur seul, ce qui fait sauter des images sur les PC et téléphones modestes.
+    const sources = (m.sources ?? [])
+      .filter((s) => UT.test(s.url) && (s.type === "video/webm" || s.type === "video/mp4"))
+      .sort((a, b) => Number(!a.maxWidth) - Number(!b.maxWidth) || Number(a.type !== "video/mp4") - Number(b.type !== "video/mp4"));
     if (!sources.length || !UT.test(m.poster)) return null;
     return { sources, poster: m.poster, durationSec: Number(m.durationSec) || 60 };
   } catch {
