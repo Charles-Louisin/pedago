@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, ExternalLink, Eye, Link2, Search, Upload, Wand2, X } from "lucide-react";
+import Link from "next/link";
+import { Check, ClipboardList, ExternalLink, Eye, Link2, Search, Upload, Wand2, X } from "lucide-react";
 import { api, apiUpload, CLASS_LEVELS, SOURCE_STATUS } from "@/lib/api";
 import { BubbleButton, BubbleField } from "@/components/ui/Bubble";
 import { Empty, PageHeader, PdfFrame, Pill, Segmented, Select, Skeleton } from "@/components/ui/kit";
@@ -27,6 +28,7 @@ const RIGHTS: Record<string, string> = { public_official: "Texte officiel public
 const DOC_TYPES: [string, string][] = [
   ["curriculum", "Programme"],
   ["guide", "Guide pédagogique"],
+  ["lesson_template", "Fiche modèle"],
   ["calendar", "Calendrier"],
   ["textbook_list", "Liste de manuels"],
   ["exam", "Examen"],
@@ -35,6 +37,8 @@ const DOC_TYPES: [string, string][] = [
 ];
 const PILL: Record<string, string> = { verified: "validated", extracted: "extracted", rejected: "REJECTED" };
 type Panel = null | "upload" | "link" | "research";
+/** Documents qui portent une méthode de préparation : on les analyse (méthode), on n'en extrait pas de leçons. */
+const METHOD_DOCS = new Set(["guide", "lesson_template"]);
 
 /**
  * Sources officielles : dépôt de PDF, ajout par lien (sites officiels en liste blanche) et recherche IA
@@ -51,6 +55,7 @@ export default function SourcesPage() {
   const [search, setSearch] = useState({ subsystem: "francophone", classLevel: "", subjectCode: "", topic: "" });
   const fileRef = useRef<HTMLInputElement>(null);
   const [extract, setExtract] = useState<{ id: string; classLevel: string; subjectCode: string } | null>(null);
+  const [analyze, setAnalyze] = useState<{ id: string; subsystem: string } | null>(null);
   const { data, isLoading } = useQuery({
     queryKey: ["sources"],
     queryFn: () => api<{ items: Source[] }>("admin/sources?limit=100"),
@@ -127,6 +132,15 @@ export default function SourcesPage() {
     onError,
   });
 
+  const runAnalyze = useMutation({
+    mutationFn: () => api("admin/ai/jobs", { method: "POST", body: { kind: "analyze_method", params: { sourceId: analyze!.id, subsystem: analyze!.subsystem } } }),
+    onSuccess: () => {
+      toast.success("Analyse lancée : la méthode arrivera « à valider » dans Méthodes de préparation");
+      setAnalyze(null);
+    },
+    onError,
+  });
+
   const items = (data?.items ?? []).filter((s) => filter === "all" || !["verified", "rejected"].includes(s.status));
   const metaFields = (
     <>
@@ -147,7 +161,7 @@ export default function SourcesPage() {
       <PageHeader
         eyebrow="Bibliothèque"
         title="Sources officielles"
-        description="Dépose les documents officiels, ajoute un lien d'un site officiel ou lance une recherche. Tout arrive « à vérifier » : ouvre le document, vérifie-le, puis extrais les leçons."
+        description="Dépose les documents officiels, ajoute un lien d'un site officiel ou lance une recherche. Tout arrive « à vérifier » : ouvre le document, vérifie-le, puis extrais les leçons (programme) ou analyse la méthode de préparation (guide pédagogique, fiche modèle)."
         actions={
           <div className="flex flex-wrap gap-2">
             <BubbleButton tone="ink" onClick={() => setPanel(panel === "upload" ? null : "upload")}><Upload size={16} /> Déposer un PDF</BubbleButton>
@@ -239,9 +253,28 @@ export default function SourcesPage() {
                     <BubbleButton size="sm" onClick={() => setStatus.mutate({ id: s._id, status: "rejected" })} aria-label="Écarter"><X size={14} /></BubbleButton>
                   </>
                 )}
-                {s.status !== "rejected" && <BubbleButton size="sm" onClick={() => setExtract({ id: s._id, classLevel: "CP", subjectCode: "MATH" })}><Wand2 size={14} /> Extraire</BubbleButton>}
+                {s.status !== "rejected" &&
+                  (METHOD_DOCS.has(s.docType) ? (
+                    <BubbleButton size="sm" onClick={() => setAnalyze({ id: s._id, subsystem: "francophone" })}><ClipboardList size={14} /> Analyser la méthode</BubbleButton>
+                  ) : (
+                    <BubbleButton size="sm" onClick={() => setExtract({ id: s._id, classLevel: "CP", subjectCode: "MATH" })}><Wand2 size={14} /> Extraire</BubbleButton>
+                  ))}
               </div>
               {preview === s._id && <PdfFrame className="mt-4" src={`/api/proxy/admin/sources/${s._id}/file`} title={s.title} />}
+              {analyze?.id === s._id && (
+                <div className="mt-3 flex flex-wrap items-end gap-3 rounded-2xl bg-[var(--surface-2)] p-4 shadow-[0_0_0_1px_var(--line)]">
+                  <p className="w-full text-[13px] text-muted">
+                    L’IA relève la méthode de préparation du document (cartouche, rubriques, étapes de la démarche, règles de rédaction). Elle est rangée « à valider » dans{" "}
+                    <Link href="/dashboard/methodes" className="font-medium text-ink underline-offset-2 hover:underline">Méthodes de préparation</Link> : la génération des leçons ne la suivra qu’une fois validée.
+                  </p>
+                  <Select label="Sous-système" value={analyze.subsystem} onChange={(e) => setAnalyze({ ...analyze, subsystem: e.target.value })} className="w-48">
+                    <option value="francophone">Francophone</option>
+                    <option value="anglophone">Anglophone</option>
+                  </Select>
+                  <BubbleButton tone="ink" onClick={() => runAnalyze.mutate()} disabled={runAnalyze.isPending}>{runAnalyze.isPending ? "Lancement…" : "Lancer l’analyse"}</BubbleButton>
+                  <BubbleButton onClick={() => setAnalyze(null)}>Annuler</BubbleButton>
+                </div>
+              )}
               {extract?.id === s._id && (
                 <div className="mt-3 flex flex-wrap items-end gap-3 rounded-2xl bg-[var(--surface-2)] p-4 shadow-[0_0_0_1px_var(--line)]">
                   <Select label="Classe" value={extract.classLevel} onChange={(e) => setExtract({ ...extract, classLevel: e.target.value })} className="w-40">

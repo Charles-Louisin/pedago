@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ const KIND_LABELS: Record<string, string> = {
   teacher_import: "Import d'une fiche (enseignant)",
   research_sources: "Recherche de sources",
   program_import: "Import d'un programme (enseignant)",
+  analyze_method: "Analyser une méthode de préparation",
 };
 
 export default function AiFactory() {
@@ -39,6 +41,18 @@ export default function AiFactory() {
   const usage = useQuery({ queryKey: ["usage"], queryFn: () => api<Usage[]>("admin/ai/usage") });
   const subjects = useQuery({ queryKey: ["subjects"], queryFn: () => api<{ code: string; name: string; subsystem: string }[]>("admin/subjects") });
   const subsystem = classLevel.startsWith("CLASS_") ? "anglophone" : "francophone";
+  // Méthode de préparation que suivra la génération (validée en base) ; une méthode à valider bloque le lancement.
+  const methods = useQuery({
+    queryKey: ["methods-applicable", classLevel, subjectCode],
+    queryFn: () =>
+      api<{ bySubject: { subjectCode: string; method: { title: string } | null }[]; pending: { id: string; title: string }[] }>(
+        `admin/methods-applicable?${new URLSearchParams({ classLevel, ...(subjectCode ? { subjectCode } : {}) })}`
+      ),
+  });
+  const pendingMethods = methods.data?.pending ?? [];
+  const followed = (methods.data?.bySubject ?? []).filter((x) => x.method);
+  const generic = (methods.data?.bySubject ?? []).filter((x) => !x.method);
+  const subjectName = (code: string) => subjects.data?.find((x) => x.code === code && x.subsystem === subsystem)?.name ?? code;
 
   const launch = useMutation({
     mutationFn: () =>
@@ -90,10 +104,36 @@ export default function AiFactory() {
               })}
             </div>
             <div className="flex items-end justify-end">
-              <BubbleButton tone="green" disabled={!aiReady || !types.length || launch.isPending} onClick={() => launch.mutate()}>Lancer la production</BubbleButton>
+              <BubbleButton tone="green" disabled={!aiReady || !types.length || launch.isPending || pendingMethods.length > 0} onClick={() => launch.mutate()}>Lancer la production</BubbleButton>
             </div>
           </div>
         </div>
+        {types.includes("lesson_plan") && methods.data && (
+          <div className={`mt-5 rounded-2xl p-4 text-[13px] ${pendingMethods.length ? "bg-amber-500/10 text-amber-900 dark:text-amber-200" : "bg-[var(--surface-2)] shadow-[0_0_0_1px_var(--line)]"}`}>
+            {pendingMethods.length ? (
+              <p>
+                <b>Méthode de préparation à valider avant de générer :</b> {pendingMethods.map((m) => `« ${m.title} »`).join(", ")}.{" "}
+                <Link href="/dashboard/methodes" className="font-semibold underline underline-offset-2">Ouvrir Méthodes de préparation</Link>
+              </p>
+            ) : (
+              <>
+                {followed.length > 0 && (
+                  <p>
+                    <b>Méthode officielle suivie :</b>{" "}
+                    {[...new Set(followed.map((x) => x.method!.title))].map((t) => `« ${t} »`).join(", ")}
+                    {subjectCode ? "" : ` (${followed.length} matière${followed.length > 1 ? "s" : ""})`}.
+                  </p>
+                )}
+                {generic.length > 0 && (
+                  <p className="text-muted">
+                    Démarche générique (aucune méthode validée) : {generic.map((x) => subjectName(x.subjectCode)).join(", ")}.{" "}
+                    <Link href="/dashboard/sources" className="font-medium text-ink underline-offset-2 hover:underline">Dépose le guide ou une fiche modèle</Link>.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        )}
         {stats.data && !aiReady && (
           <p className="mt-5 rounded-xl bg-[var(--sun-soft)] px-4 py-2.5 text-[13px] text-sun">Clé OpenRouter absente : renseigne <code>OPENROUTER_API_KEY</code> dans la configuration de l’API pour activer la production.</p>
         )}

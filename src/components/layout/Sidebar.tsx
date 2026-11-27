@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpenCheck, CalendarDays, FileSearch, GitBranch, LayoutGrid, Library, LogOut, Menu, Sparkles, Users, X } from "lucide-react";
+import { BookOpenCheck, CalendarDays, ClipboardList, FileSearch, GitBranch, LayoutGrid, Library, LogOut, Menu, Sparkles, Users, X } from "lucide-react";
 import { clsx } from "clsx";
 import { PedagoWordmark } from "@/components/brand/PedagoMark";
 import { ThemeToggle } from "./ThemeToggle";
@@ -17,6 +17,7 @@ const SECTIONS = [
       { href: "/dashboard/ressources", label: "Relecture & ressources", icon: BookOpenCheck },
       { href: "/dashboard/referentiel", label: "Référentiel", icon: GitBranch },
       { href: "/dashboard/sources", label: "Sources officielles", icon: FileSearch },
+      { href: "/dashboard/methodes", label: "Méthodes de préparation", icon: ClipboardList },
     ],
   },
   {

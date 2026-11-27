@@ -19,6 +19,7 @@ type Plan = {
   illustrations: { planned: number; reusable: number };
   cost: { avgPerResourceUsd: number | null; estimateUsd: number | null; maxUsd: number; basedOn: number };
   checks: { level: "warn" | "info"; text: string }[];
+  methods?: { bySubject: { subjectCode: string; name: string; method: { id: string; title: string } | null }[]; pending: { id: string; title: string }[] };
 };
 type Job = { _id: string; kind: string; status: string; params: Record<string, unknown>; spentUsd: number; budgetUsd: number; steps: { name: string; status: string }[]; lastError?: string; createdAt: string };
 
@@ -160,18 +161,25 @@ export default function BuildLibrary() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[420px] text-[13px]">
                   <thead className="text-left text-muted">
-                    <tr><th className="px-5 py-2 font-medium">Matière</th><th className="px-2 font-medium">Leçons</th><th className="px-2 font-medium">Prévues</th><th className="px-5 text-right font-medium">Prêtes</th></tr>
+                    <tr><th className="px-5 py-2 font-medium">Matière</th><th className="px-2 font-medium">Méthode</th><th className="px-2 font-medium">Leçons</th><th className="px-2 font-medium">Prévues</th><th className="px-5 text-right font-medium">Prêtes</th></tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--line)]">
                     {p.subjects.map((s) => (
                       <tr key={s.code}>
                         <td className="px-5 py-2.5 font-medium"><Link className="hover:underline" href={`/dashboard/ressources?classLevel=${classLevel}&subjectCode=${s.code}&status=ALL`}>{s.name}</Link></td>
+                        <td className="max-w-[180px] truncate px-2 text-muted" title={p.methods?.bySubject.find((x) => x.subjectCode === s.code)?.method?.title ?? "Démarche générique"}>
+                          {p.methods?.bySubject.find((x) => x.subjectCode === s.code)?.method ? (
+                            <Link className="text-ink hover:underline" href="/dashboard/methodes?status=validated">{p.methods.bySubject.find((x) => x.subjectCode === s.code)!.method!.title}</Link>
+                          ) : (
+                            "Générique"
+                          )}
+                        </td>
                         <td className="px-2 tabular-nums">{s.lessons}</td>
                         <td className="px-2 tabular-nums">{s.planned}</td>
                         <td className="px-5 text-right tabular-nums">{s.existing}</td>
                       </tr>
                     ))}
-                    {!p.subjects.length && <tr><td colSpan={4} className="px-5 py-6 text-center text-muted">Aucune leçon validée.</td></tr>}
+                    {!p.subjects.length && <tr><td colSpan={5} className="px-5 py-6 text-center text-muted">Aucune leçon validée.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -214,7 +222,7 @@ export default function BuildLibrary() {
                 "Rien à générer : tout existe déjà ou aucune leçon n’est validée."
               )}
             </p>
-            <BubbleButton tone="green" disabled={!p.resources.launchable || launch.isPending} onClick={() => launch.mutate()}>
+            <BubbleButton tone="green" disabled={!p.resources.launchable || launch.isPending || (p.methods?.pending.length ?? 0) > 0} onClick={() => launch.mutate()}>
               Lancer la construction <ArrowRight size={16} />
             </BubbleButton>
           </div>
