@@ -24,7 +24,7 @@ const SECTIONS = [
     title: "Production",
     items: [
       { href: "/dashboard/bibliotheque", label: "Construire ma bibliothèque", icon: Library },
-      { href: "/dashboard/ia", label: "Usine IA", icon: Sparkles },
+      { href: "/dashboard/ia", label: "Suivi des tâches IA", icon: Sparkles },
     ],
   },
   {

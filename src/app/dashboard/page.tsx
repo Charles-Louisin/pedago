@@ -31,7 +31,7 @@ export default function Overview() {
         <section className="card relative flex flex-col items-start gap-6 overflow-hidden p-6 sm:flex-row sm:items-center sm:gap-7 sm:p-7 rise-in">
           <StatusIcon size={64} state={!data?.aiConfigured ? "error" : running ? "busy" : toReview ? "warn" : "idle"} />
           <div className="min-w-0">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted">Usine IA</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted">Tâches IA</p>
             <h2 className="mt-1 text-[24px] font-semibold leading-tight">
               {!data ? "…" : !data.aiConfigured ? "Clé OpenRouter manquante" : running ? `${running} tâche(s) en cours` : "En attente"}
             </h2>

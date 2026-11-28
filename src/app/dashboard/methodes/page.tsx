@@ -36,7 +36,7 @@ const TYPES = ["lesson_plan", "course_notes", "exercises", "assessment", "compos
 /**
  * Méthodes de préparation : ce que l'IA a relevé dans un guide pédagogique ou une fiche modèle (Sources).
  * Rien n'est suivi tant qu'un humain n'a pas relu et validé la méthode ; la génération des leçons
- * (Usine IA, Construire ma bibliothèque) applique ensuite la méthode validée la plus précise.
+ * (Construire ma bibliothèque) applique ensuite la méthode validée la plus précise.
  */
 export default function Methodes() {
   const qc = useQueryClient();
